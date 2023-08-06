@@ -1,0 +1,20 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Neucha&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&family=Rubik:wght@300&display=swap');
+
+.nav-links a {
+  font-family: 'Rubik', sans-serif;
+  
+}
+
+.nav {
+  background-color: black;
+
+}
+
+.nav-link {
+  color: #ffffff !important;
+}
+
+
+
+/*  */

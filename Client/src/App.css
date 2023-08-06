@@ -1,0 +1,33 @@
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&family=Rubik:wght@300&display=swap');
+.App{
+
+  
+
+  /* font-family: 'Open Sans', sans-serif; */
+  font-family: 'Rubik', sans-serif;
+}
+
+.background{
+  background-color:rgb(215, 234, 255) ;
+}
+/* .nav-links a {
+  font-family: 'Rubik', sans-serif;
+} */
+
+.hotelImg {
+  background-image: url(./assets/hotel.jpg);
+  /* background-size: cover; */
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 90vh;
+
+}
+
+.MuiInputLabel-root {
+  direction: rtl;
+}
+
+.container{
+    width: auto;
+}
+
