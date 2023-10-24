@@ -12,16 +12,40 @@ import Cookies from 'js-cookie';
 interface Props {
     todo: any;
     todos: any[];
+    id:string | undefined;
     setTodos: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-export const SingleTodo = ({ todo, todos, setTodos }: Props) => {
+export const SingleTodo = ({ todo, todos, id,setTodos }: Props) => {
     const [edit, setEdit] = useState<boolean>(false);
     const [editTodo, setEditTodo] = useState<string>(todo.description);
     const token = Cookies.get('token');
 
 
-    
+    const handleIsDone = async (_id: any) => {
+        // the done task delete from the tasks list
+        console.log(todo._id)
+        setTodos(todos.filter((todo) => todo._id !== _id));
+        try {
+            const response = await axios.put(`http://localhost:3000/task/${todo._id}`, {
+                job: todo.job,
+                location: todo.location,
+                description: todo.description,
+                isDone: true,
+                DoneBy: id,
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            console.log(response.data);
+            alert("משימה התעדכנה בהצלחה");
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    };
 
     const handleDelete = async (_id: number) => {
         console.log("***")
@@ -40,15 +64,15 @@ export const SingleTodo = ({ todo, todos, setTodos }: Props) => {
         }
     };
 
-    const handleEdit = (e: React.FormEvent, _id: number) => {
-        e.preventDefault();
-        setTodos(
-            todos.map((todo) =>
-                todo._id === _id ? { ...todo, todo: editTodo } : todo
-            )
-        );
-        setEdit(false);
-    };
+    // const handleEdit = (e: React.FormEvent, _id: number) => {
+    //     e.preventDefault();
+    //     setTodos(
+    //         todos.map((todo) =>
+    //             todo._id === _id ? { ...todo, todo: editTodo } : todo
+    //         )
+    //     );
+    //     setEdit(false);
+    // };
 
 
     return (
@@ -62,7 +86,7 @@ export const SingleTodo = ({ todo, todos, setTodos }: Props) => {
                 </Typography>
             </TableCell >
             <TableCell sx={{ width: '2vw' }}>
-                <IconButton onClick={() => handleDelete(todo._id)}>
+                <IconButton onClick={() => handleIsDone(todo._id)}>
                     <DoneIcon />
                 </IconButton>
             </TableCell>

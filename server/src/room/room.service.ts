@@ -39,6 +39,23 @@ export class RoomService {
         return await this.roomModel.findByIdAndUpdate(id, room, { new: true });
     }
 
+    // try
+    async updateTemporary(id, room: Room): Promise<Room> {
+        const existRoom = await this.roomModel.findById(id);
+        const existingEntryDate = existRoom.temporaryEntryDate;
+        const existingReleaseDate = existRoom.temporaryReleaseDate;
+        existingEntryDate.push(...room.temporaryEntryDate);
+        existingReleaseDate.push(...room.temporaryReleaseDate);
+        existingEntryDate.sort((a, b) => a.getTime() - b.getTime());
+        existingReleaseDate.sort((a, b) => a.getTime() - b.getTime());
+        room.temporaryEntryDate = existingEntryDate;
+        room.temporaryReleaseDate = existingReleaseDate;
+        // return await existRoom.save();
+        return await this.roomModel.findByIdAndUpdate(id, room, { new: true });
+
+      }
+      
+
     async delete(id): Promise<any> {
         return await this.roomModel.findByIdAndDelete(id);
     }

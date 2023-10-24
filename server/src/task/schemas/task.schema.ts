@@ -8,12 +8,12 @@ export type TaskDocument = Document & Task;
 
 @Schema()
 export class Task {
-   
-    @Prop()
-    job:Job;
 
     @Prop()
-    location:string;
+    job: Job;
+
+    @Prop()
+    location: string;
 
     @Prop()
     description: string;
@@ -21,8 +21,10 @@ export class Task {
     @Prop()
     isDone: boolean;
 
- 
-  
+    @Prop()
+    DoneBy: string;
+
+
 }
 
 

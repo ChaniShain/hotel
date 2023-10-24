@@ -82,7 +82,7 @@ export const User = () => {
                 </TableHead>
                 <TableBody>
                   {tasks.map((task, index) => (
-                    <SingleTodo todo={task} key={task._id} todos={tasks} setTodos={setTasks} />
+                    <SingleTodo todo={task} key={task._id} todos={tasks} id={id} setTodos={setTasks} />
                   ))}
                 </TableBody>
               </Table>

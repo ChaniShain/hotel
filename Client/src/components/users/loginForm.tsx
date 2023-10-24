@@ -66,7 +66,7 @@ export const LoginForm: React.FC = () => {
           <TextField
             label="ID"
             value={id}
-            onChange={(event) => setId(event.target.value)}
+            onChange={(event: { target: { value: React.SetStateAction<string>; }; }) => setId(event.target.value)}
             fullWidth
           />
           <Box sx={{ marginBottom: '16px' }} />
@@ -74,7 +74,7 @@ export const LoginForm: React.FC = () => {
             label="Password"
             type={showPassword ? 'text' : 'password'}
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(event: { target: { value: React.SetStateAction<string>; }; }) => setPassword(event.target.value)}
             fullWidth
             InputProps={{
               endAdornment: (

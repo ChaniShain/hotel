@@ -10,6 +10,8 @@ import { Request } from 'express';
 import { IS_PUBLIC_KEY } from './decorator/public.decorator';
 import { Reflector } from '@nestjs/core';
 
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 
 @Injectable()
@@ -35,6 +37,7 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(
         token,
         {
+          
           secret: process.env.SECRET_KEY
         }
       );

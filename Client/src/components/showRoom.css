@@ -2,4 +2,7 @@
     display: none;
   
   }
+  .selected-room {
+    background-color: red;
+  }
   

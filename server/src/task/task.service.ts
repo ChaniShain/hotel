@@ -15,12 +15,20 @@ export class TaskService {
     }
 
     async readAll(): Promise<Task[]> {
-        return await this.taskModel.find().exec();
+        return await this.taskModel.find({isDone:true}).exec();
     }
+    // async readAll(): Promise<Task[]> {
+    //     return await this.taskModel.find().exec();
+    // }
 
     async readById(job): Promise<Task[]> {
-        return await this.taskModel.find({ job }).exec();
+        return await this.taskModel.find({ job, isDone: false }).exec();
     }
+    
+
+    //   async readById(job): Promise<Task[]> {
+    //     return await this.taskModel.find({ job }).exec();
+    // }
  
     async update(id, task: Task): Promise<Task> {
         return await this.taskModel.findByIdAndUpdate(id, task, { new: true })

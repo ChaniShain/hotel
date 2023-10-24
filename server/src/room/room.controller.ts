@@ -51,6 +51,16 @@ export class RoomController {
             updatedRoom
         })
     }
+
+    @SetMetadata(IS_PUBLIC_KEY, true)
+    @Put('/:id')
+    async updateTemporary(@Res() response, @Param('id') id, @Body() room: Room) {
+        const updatedRoom = await this.roomService.update(id, room);
+        return response.status(HttpStatus.OK).json({
+            updatedRoom
+        })
+    }
+    
     @SetMetadata(IS_PUBLIC_KEY, true)
     @Delete('/:id')
     async delete(@Res() response, @Param('id') id) {

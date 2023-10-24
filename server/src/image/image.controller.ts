@@ -10,6 +10,7 @@ import { Response } from 'express';
 import { join } from 'path';
 import { type } from 'os';
 import { Type_enum } from 'src/room_type/schemas/room_type.enum';
+import * as fs from 'fs-extra';
 
 @Controller('images')
 export class ImageController {
@@ -37,32 +38,58 @@ export class ImageController {
 
   }
 
+  // @SetMetadata(IS_PUBLIC_KEY, true)
+  // @Get(':type')
+  // async findByType(@Param('type') type: Type_enum, @Res() res: Response) {
+
+  //   const images = await this.imageService.readById(type);
+  //   console.log (images)
+  //   if (!images || images.length === 0) {
+  //     throw new NotFoundException('Image not found');
+  //   }
+
+  //   // res.header('Content-Disposition', 'inline');
+  //   const filePromises = images.map(async (image) => {
+
+
+  //         const typeRoom = image.typeRoom;
+  //         const { image: imagePath } = image;
+  //         const imagePathSplit = imagePath.split("\\");
+  //         res.contentType(image.contentType);
+  //         return res.sendFile(join(__dirname, '..', '..', 'src', 'images', typeRoom, imagePathSplit[1]));
+  //       });
+
+  //     }
   @SetMetadata(IS_PUBLIC_KEY, true)
   @Get(':type')
   async findByType(@Param('type') type: Type_enum, @Res() res: Response) {
-
-    const images = await this.imageService.readById(type);
-    console.log (images)
-    if (!images || images.length === 0) {
-      throw new NotFoundException('Image not found');
-    }
-    
-    // res.header('Content-Disposition', 'inline');
-    const filePromises = images.map(async (image) => {
- 
-     
-          const typeRoom = image.typeRoom;
-          const { image: imagePath } = image;
-          const imagePathSplit = imagePath.split("\\");
-          res.contentType(image.contentType);
-          return res.sendFile(join(__dirname, '..', '..', 'src', 'images', typeRoom, imagePathSplit[1]));
-        });
-      //  console.log(filePromises)
-        // await Promise.all(filePromises);
-      }
-    // return res.json(images);
+    try {
+      const images = await this.imageService.readById(type);
   
-
+      if (!images || images.length === 0) {
+        throw new NotFoundException('Image not found');
+      }
+  
+      for (const image of images) {
+        const typeRoom = image.typeRoom;
+        const { image: imagePath } = image;
+        const imagePathSplit = imagePath.split("\\");
+        const filePath = join(__dirname, '..', '..', 'src', 'images', typeRoom, imagePathSplit[1]);
+  
+        const fileData = await fs.promises.readFile(filePath);
+  
+        res.contentType(image.contentType);
+        res.write(fileData);
+      }
+  
+      res.end();
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  }
+  
+  
 
   @SetMetadata(IS_PUBLIC_KEY, true)
   @Get(':id')

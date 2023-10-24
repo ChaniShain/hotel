@@ -1,14 +1,31 @@
   @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&family=Rubik:wght@300&display=swap');
-.App{
 
+  .App{
+    /* font-family:'Times New Roman', Times, serif, */
   
 
-  /* font-family: 'Open Sans', sans-serif; */
-  font-family: 'Rubik', sans-serif;
-}
 
+  /* font-family: 'Open Sans', sans-serif; */
+  /* font-family: 'Rubik', sans-serif !important; */
+  /* font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif */
+}
+/* .MuiOutlinedInput-notchedOutline {
+  border-width: 1px !important;
+  border-color: pink !important;
+} */
+
+.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color:#131054 !important;
+  /* color: #131054; */
+}
+.MuiInputLabel-root {
+  color: #131054  !important;
+} 
 .background{
+  
   background-color:rgb(215, 234, 255) ;
+  height: 100%; 
+  
 }
 /* .nav-links a {
   font-family: 'Rubik', sans-serif;

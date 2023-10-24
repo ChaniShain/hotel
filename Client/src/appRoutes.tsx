@@ -20,9 +20,12 @@ import { EditUser } from './components/users/editUser';
 import { useState } from 'react';
 import axios from 'axios';
 import img from './assets/hotel.jpg';
-import logo from './assets/LOGO.png';
+import logo from './assets/LOGO2.png';
 import { AddGuest } from './components/guast.form';
 import './appRoutes.css';
+import { User2 } from './components/users/user2';
+import { Order } from './components/order.finish';
+import { Manager } from './components/users/manager';
 
 
 const pages = ['Home', 'About', 'Gallery', 'Rooms'];
@@ -66,7 +69,7 @@ export const AppRoutes = () => {
 
   return (
     <Router >
-      <AppBar position="static" sx={{ bgcolor: "#131054" }}>
+      <AppBar position="sticky" sx={{ bgcolor: "#131054" }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             <Typography
@@ -178,7 +181,9 @@ export const AppRoutes = () => {
           <Route path="/user" element={<Protect><User /></Protect>} />
           <Route path="/user/:id" element={<User />} />
           <Route path="/AddUser" element={<AddUser />} />
-          <Route path="/EditUser" element={<EditUser />} />
+          <Route path="/order.finish" element={<Order />} />
+          <Route path="/user2" element={<User2 />} />
+          <Route path="/manager" element={<Manager />} />
           <Route path="/guest.form" element={<AddGuest />} />
         </Route>
       </Routes>

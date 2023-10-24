@@ -90,7 +90,7 @@ export const EditUser: React.FC = () => {
       const response = await axios.put(`http://localhost:3000/user/${id}`, {
         _id: id,
         password: password,
-        job:job,
+        job: job,
         firstName: firstName,
         lastName: lastName,
         roles: [role]
@@ -137,93 +137,94 @@ export const EditUser: React.FC = () => {
   return (
     <>
       <form onSubmit={handleSubmit}>
-      <Grid container spacing={2} justifyContent="center">
-      <Grid item xs={12} md={6}>
-        <TextField
-          label="תעודת זהות"
-          value={idSearch}
-          onChange={handleIdSearchChange}
-          fullWidth
-          margin="normal"
-        />
-      <Grid  style={{ display: 'flex', justifyContent: 'center' }}>
+        <Grid container spacing={2} justifyContent="center">
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="תעודת זהות"
+              value={idSearch}
+              onChange={handleIdSearchChange}
+              fullWidth
+              margin="normal"
+            />
+            <Grid style={{ display: 'flex', justifyContent: 'center' }}>
 
-        <Button type="submit" variant="contained" style={{ backgroundColor: '#131054' }}>
-          חפש
-        </Button>
-        </Grid>
-        </Grid>
+              <Button type="submit" variant="contained" style={{ backgroundColor: '#131054' }}>
+                חפש
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
       </form>
 
       {showNextForm && (
         <form onSubmit={handleNextFormSubmit}>
-          <Grid container spacing={2} justifyContent="center">
-      <Grid item xs={12} md={6}>
-          <TextField
-            label="תעודת זהות"
-            value={id}
-            onChange={handleIdChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="סיסמא"
-            type="password"
-            value={password}
-            onChange={handlePasswordChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="שם פרטי"
-            value={firstName}
-            onChange={handleFirstNameChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="שם משפחה"
-            value={lastName}
-            onChange={handleLastNameChange}
-            fullWidth
-            margin="normal"
-          />
-          <FormControl fullWidth margin="normal">
-            <InputLabel htmlFor="job-select">תפקיד</InputLabel>
-            <Select
-              id="job-select"
-              value={job}
-              onChange={handleJobChange}
-              label="תפקיד"
-            >
-              <MenuItem value="cleaner">מנקה</MenuItem>
-              <MenuItem value="electrician">חשמלאי</MenuItem>
-              <MenuItem value="serviceman">איש תחזוקה</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth margin="normal">
-            <InputLabel htmlFor="role-select">הרשאה</InputLabel>
-            <Select
-              id="role-select"
-              value={role}
-              onChange={handleRoleChange}
-              label="הרשאה"
-            >
-              <MenuItem value="user">משתמש</MenuItem>
-              <MenuItem value="admin">מנהל</MenuItem>
-            </Select>
-          </FormControl>
-
-          <Button type="submit" variant="contained" style={{ backgroundColor: '#131054' ,marginLeft:"230px"}}>
-            שמור  שינויים
-          </Button>
           
+          <Grid container spacing={2} justifyContent="center">
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="תעודת זהות"
+                value={id}
+                onChange={handleIdChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="סיסמא"
+                type="password"
+                value={password}
+                onChange={handlePasswordChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="שם פרטי"
+                value={firstName}
+                onChange={handleFirstNameChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="שם משפחה"
+                value={lastName}
+                onChange={handleLastNameChange}
+                fullWidth
+                margin="normal"
+              />
+              <FormControl fullWidth margin="normal">
+                <InputLabel htmlFor="job-select">תפקיד</InputLabel>
+                <Select
+                  id="job-select"
+                  value={job}
+                  onChange={handleJobChange}
+                  label="תפקיד"
+                >
+                  <MenuItem value="cleaner">מנקה</MenuItem>
+                  <MenuItem value="electrician">חשמלאי</MenuItem>
+                  <MenuItem value="serviceman">איש תחזוקה</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth margin="normal">
+                <InputLabel htmlFor="role-select">הרשאה</InputLabel>
+                <Select
+                  id="role-select"
+                  value={role}
+                  onChange={handleRoleChange}
+                  label="הרשאה"
+                >
+                  <MenuItem value="user">משתמש</MenuItem>
+                  <MenuItem value="admin">מנהל</MenuItem>
+                </Select>
+              </FormControl>
 
-          <Button type="submit" variant="contained" style={{ backgroundColor: '#131054' ,marginLeft:"80px"}} onClick={handleDelete}>
-            מחק עובד
-          </Button>
-          </Grid></Grid>
+              <Button type="submit" variant="contained" style={{ backgroundColor: '#131054', marginLeft: "230px" }}>
+                שמור  שינויים
+              </Button>
+
+
+              <Button type="submit" variant="contained" style={{ backgroundColor: '#131054', marginLeft: "80px" }} onClick={handleDelete}>
+                מחק עובד
+              </Button>
+            </Grid></Grid>
         </form>
       )}
 
