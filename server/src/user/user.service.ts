@@ -10,8 +10,6 @@ export class UserService {
     constructor(@InjectModel('User') private userModel: Model<User>) { }
 
     async create(user: User): Promise<User> {
-        // const newUser = new this.userModel(user);
-        // return newUser.save();
         const { password, ...userData } = user;
         const saltOrRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltOrRounds);
@@ -28,6 +26,7 @@ export class UserService {
     }
 
     async update(id, user: User): Promise<User> {
+
         return await this.userModel.findByIdAndUpdate(id, user, { new: true })
     }
 

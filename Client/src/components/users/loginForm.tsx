@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useNavigate , } from 'react-router-dom';
-import { TextField, Button, IconButton, InputAdornment, Box } from '@mui/material';
+import { TextField, Button, IconButton, InputAdornment, Box, Alert, AlertTitle } from '@mui/material';
 import { styled } from '@mui/system';
 
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -16,11 +16,13 @@ const FormContainer = styled('div')({
   marginTop: "33px",
 });
 
-export const LoginForm: React.FC = () => {
-  const navigate = useNavigate();
+export const LoginForm= () => {
+  // props.setAvatarContent("f");
+    const navigate = useNavigate();
   const [id, setId] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
@@ -44,10 +46,14 @@ export const LoginForm: React.FC = () => {
 
       }
       catch (error) {
-        alert("something wrong!");
+        // alert("something wrong!");
+        setError(" אינך רשום במערכת");
       }
       (true);
     } catch (error) {
+      // alert("something wrong!");
+      setError("אינך רשום במערכת");
+
       console.error(error);
     }
 
@@ -61,7 +67,12 @@ export const LoginForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit}>
       <FormContainer >
-
+      {error && (
+          <Alert severity="error" sx={{width:"380px"}}>
+            <AlertTitle>שגיאה</AlertTitle>
+            {error}
+          </Alert>
+        )}
         <Box maxWidth="300px" >
           <TextField
             label="ID"

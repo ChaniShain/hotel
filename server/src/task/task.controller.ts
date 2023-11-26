@@ -27,6 +27,17 @@ export class TaskController {
             task
         })
     }
+
+  
+    @Get('/isMove')
+    @Roles(Role.Admin)
+    async ifMove(@Res() response) {
+      console.log("get")
+        const task = await this.taskService.readAdmin();
+        return response.status(HttpStatus.OK).json({
+            task
+        })
+    }
   
    
     @Get('/:job')
@@ -40,6 +51,7 @@ export class TaskController {
     @Put('/:id')
     @Roles(Role.User)
     async update(@Res() response, @Param('id') id, @Body() task: Task) {
+        console.log(id)
         const updatedTask = await this.taskService.update(id, task);
         return response.status(HttpStatus.OK).json({
             updatedTask

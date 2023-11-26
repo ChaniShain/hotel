@@ -8,13 +8,13 @@ export type GuestDocument = Document & Guest;
 export class Guest {
 
     @Prop()
-    _id: string;
+    id: string;
 
     @Prop()
     name: string;
 
     @Prop()
-    roomNum: number;
+    roomNum: [number];
     
     @Prop()
     nightNum:number;
@@ -23,7 +23,6 @@ export class Guest {
     payment:number;
 
    
-
     @Prop()
     credit: string;
 

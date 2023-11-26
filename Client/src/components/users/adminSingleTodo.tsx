@@ -14,16 +14,16 @@ import Cookies from 'js-cookie';
 interface Props {
     todo: any;
     todos: any[];
-    id:string | undefined;
+    id: string | undefined;
     setTodos: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-export const SingleTodo = ({ todo, todos, id,setTodos }: Props) => {
+export const AdminSingleTodo = ({ todo, todos, id, setTodos }: Props) => {
     const [edit, setEdit] = useState<boolean>(false);
     const [editTodo, setEditTodo] = useState<string>(todo.description);
     const token = Cookies.get('token');
 
-    
+
 
     const handleIsDone = async (_id: any) => {
         // the done task delete from the tasks list
@@ -55,28 +55,28 @@ export const SingleTodo = ({ todo, todos, id,setTodos }: Props) => {
         setTodos(todos.filter((todo) => todo._id !== _id));
         try {
             const response = await axios.put(`http://localhost:3000/task/${todo._id}`, {
-              job: todo.job,
-              location: todo.location,
-              description: todo.description,
-              isDone: false,
-              DoneBy:"",
-              isMove: true,
-              moveBy:id,
+                job: todo.job,
+                location: todo.location,
+                description: todo.description,
+                isDone: false,
+                DoneBy: "",
+                isMove: true,
+                moveBy: id,
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-    
+
             console.log(response.data);
             // alert("תודה! קיבלנו את פניתך ונטפל בהקדם");
-    
-          } catch (error) {
-            console.log(error);
-          }
-        
 
-        
+        } catch (error) {
+            console.log(error);
+        }
+
+
+
     };
 
 
@@ -101,18 +101,17 @@ export const SingleTodo = ({ todo, todos, id,setTodos }: Props) => {
                     {todo.location}
                 </Typography>
             </TableCell >
+            <TableCell sx={{ width: '8vw' }}>
+                {todo.moveBy}
+
+            </TableCell>
             <TableCell sx={{ width: '2vw' }}>
                 <IconButton onClick={() => handleIsDone(todo._id)}>
                     <DoneIcon />
                 </IconButton>
-                
+
             </TableCell>
-            <TableCell sx={{ width: '8vw' }}>
-                <IconButton onClick={() => handleIsSend(todo._id)} sx={{marginLeft:'18px'}}>
-                    <ArrowForwardIcon />
-                </IconButton>
-                
-            </TableCell>
+            
         </TableRow>
     );
 }

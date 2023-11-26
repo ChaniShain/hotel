@@ -1,6 +1,6 @@
 
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import { TextField, Button, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, ThemeProvider, Box, Card, CardContent, Typography, CardActions, Checkbox, Divider, Input, FormLabel, Grid } from '@mui/material';
+import { TextField, Button, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, ThemeProvider, Box, Card, CardContent, Typography, CardActions, Checkbox, Divider, Input, FormLabel, Grid, Dialog, DialogActions, DialogContent, DialogContentText } from '@mui/material';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -20,11 +20,14 @@ interface RoomData {
 export const AddGuest = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { startDateSelect, endDateSelect, room } = location.state || {};
-  // console.log(room[0]._id)
+  const { startDateSelect, endDateSelect, room, roomSelect } = location.state || {};
+  console.log("roomSelect", roomSelect)
+  let localroom: any = room;
   const startMoment = moment(startDateSelect, 'YYYY-MM-DD');
 
   const endMoment = moment(endDateSelect, 'YYYY-MM-DD');
+  const formattedStartMoment = startMoment.format('YYYY-MM-DD');
+  const formattedEndMoment = endMoment.format('YYYY-MM-DD');
   let nightNum = endMoment.diff(startMoment, 'days');
   if (nightNum == 0)
     nightNum = 1;
@@ -33,15 +36,159 @@ export const AddGuest = () => {
     sum += room[index].price * nightNum;
 
   }
+  console.log(room, "#",)
   // const payment = nightNum * room.price;
   const payment = sum;
   const [id, setId] = useState<string>('');
   const [name, setName] = useState<string>('');
-  const [roomNum, setRoomNum] = useState<RoomData>();
+  // const [roomNum, setRoomNum] = useState<RoomData>();
   const [credit, setCredit] = useState<string>('');
   const [creditDate, setCreditDate] = useState<string>('');
   const [cvc, setCvc] = useState<string>('');
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // useEffect(() => {
+  //   const handleBeforeUnload = async () => {
+  //     if (!formSubmitted)
+
+  //    await   update();
+  //     console.log("API call before page unload");
+  //   };
+
+  //   window.addEventListener('unload', handleBeforeUnload);
+
+  //   return () => {
+  //     window.removeEventListener('unload', handleBeforeUnload);
+  //   };
+  // }, []);
+
+  // window.addEventListener("beforeunload", (event) => {
+  //   update();
+  //   console.log("API call before page reload");
+  // });
+  // ----------------------
+  // useEffect(() => {
+  //   const handleBeforeUnload = async () => {
+  //     if (!formSubmitted) {
+  //      const data= await update();
+  //       console.log("API call before page unload");
+  //     }
+  //   };
+
+  //   window.addEventListener("unload", handleBeforeUnload);
+
+  //   return () => {
+  //     window.removeEventListener("unload", handleBeforeUnload);
+  //   };
+  // }, []);
+  // ----------------------------------
+
+  // useEffect(() => {
+  //   const handleUnload = async () => {
+  //     if (!formSubmitted) {
+  //       const promise = update();
+  //       window.addEventListener("unload", () => {
+  //         promise.catch(() => {
+  //           // הסגירה של הדף מופסקת
+  //           window.close();
+  //         });
+  //       });
+  //     }
+  //   };
+
+  //   window.addEventListener("unload", handleUnload);
+
+  //   return () => {
+  //     window.removeEventListener("unload", handleUnload);
+  //   };
+  // }, []);
+
+
+  // window.addEventListener("unload", (e) => {
+  //   e.preventDefault();
+  //   if (!formSubmitted)
+  //   update();
+  //   // e.returnValue = '';
+  //   console.log("API call after page reload");
+  // });
+
+  const handleUnload = (e: BeforeUnloadEvent) => {
+    if (!formSubmitted) {
+
+      e.preventDefault();
+      e.returnValue = ''; // This is used for most browsers to show the confirmation message.
+      // 
+
+      update();
+
+    }
+  };
+  const update = async () => {
+    console.log("------------------------------");
+    try {
+      for (let index = 0; index < roomSelect.length; index++) {
+
+        for (const r of roomSelect[index]) {
+          console.log(r)
+          const response = await axios.get(`http://localhost:3000/room/${r._id}`);
+          let data = response.data.room;
+
+          console.log("🚀 ~ file: guast.form.tsx:116 ~ handleSubmit ~ data:", data)
+
+          for (let j = 0; j < data.length; j++) {
+            for (let i = 0; i < data[j].temporaryEntryDate.length; i++) {
+              console.log(data[j].temporaryEntryDate[i], "", startDateSelect)
+
+              if (moment(data[j].temporaryEntryDate[i]).isSame(moment(startDateSelect)) &&
+                moment(data[j].temporaryReleaseDate[i]).isSame(moment(endDateSelect))) {
+                console.log("--", data[j]._id);
+                console.log(startDateSelect)
+                // let updatedTemporaryEntryDate = data[j].temporaryEntryDate.filter((date: any) =>moment(date)  !== startDateSelect);
+                // let updatedTemporaryEntryDate = data[j].temporaryEntryDate.filter((date: any) => !moment(date).isSame(moment(startDateSelect)));
+                let updatedTemporaryEntryDate = data[j].temporaryEntryDate.filter((date: any) => {
+                  const momentDate = moment(date).format("YYYY-MM-DD");
+                  const momentStartDate = moment(startDateSelect).format("YYYY-MM-DD");
+                  return momentDate !== momentStartDate;
+                });
+                // let updatedTemporaryReleaseDate = data[j].temporaryReleaseDate.filter((date: any) => moment(date)  !== endDateSelect);
+
+                let updatedTemporaryReleaseDate = data[j].temporaryReleaseDate.filter((date: any) => {
+                  const momentDate = moment(date).format("YYYY-MM-DD");
+                  const momentEndtDate = moment(endDateSelect).format("YYYY-MM-DD");
+                  return momentDate !== momentEndtDate;
+                });
+
+                console.log("updatedTemporaryEntryDate", updatedTemporaryEntryDate,)
+                try {
+                  let updateRoomResponse = await axios.put(
+                    `http://localhost:3000/room/temporary/${data[j]._id}`,
+                    {
+                      _id: data[j]._id,
+                      type: data[j].type,
+                      EntryDate: data[j].EntryDate,
+                      ReleaseDate: data[j].ReleaseDate,
+                      temporaryEntryDate: updatedTemporaryEntryDate,
+                      temporaryReleaseDate: updatedTemporaryReleaseDate,
+                    }
+                  );
+                  console.log("updateRoomResponse😁", updateRoomResponse);
+                } catch (error) { }
+
+              }
+
+            }
+          }
+
+
+        }
+      }
+
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
   const handleIdChange = (e: ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value.replace(/[^0-9]/g, '');
 
@@ -50,11 +197,6 @@ export const AddGuest = () => {
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
-  };
-
-  const handleRoomNumChange = (roomNum: RoomData) => {
-    setRoomNum(roomNum);
-
   };
 
 
@@ -80,7 +222,7 @@ export const AddGuest = () => {
     const input = e.target.value.replace(/[^0-9]/g, '').substring(0, 4);
     let formattedInput = '';
     for (let i = 0; i < input.length; i++) {
-      if ( i === 2 )
+      if (i === 2)
         formattedInput += '/';
       formattedInput += input.charAt(i);
 
@@ -98,135 +240,182 @@ export const AddGuest = () => {
   }
 
   const handleSubmit = async (e: FormEvent) => {
-    let rnum;
     e.preventDefault();
     if (!id || !credit || !creditDate || !cvc) {
       alert("אחד או יותר מהנתונים חסרים")
       return;
-    }else{
+    } else {
+      let rooms_id = [];
+      try {
+        for (let index = 0; index < roomSelect.length; index++) {
+          console.log(index, roomSelect[index], "🍟")
 
-    
-    try {
-      const response = await axios.get(`http://localhost:3000/room/type/${room[0]._id}`);
-      let isAvailable = false;
-      console.log("yy")
-      // let roomNum2;
 
-      for (const item of response.data.rooms) {
-        let flag = true;
-        for (let i = 0; i < item.EntryDate.length; i++) {
-          if (
-           ( moment(item.EntryDate[i]).isBefore(endDateSelect) || 
-           moment(item.EntryDate[i]).isSame(endDateSelect))
-           && (moment(item.ReleaseDate[i]).isAfter(endDateSelect) ||
-           moment(item.ReleaseDate[i]).isSame(endDateSelect)
-          ||  moment(item.ReleaseDate[i]).isSame(startDateSelect)
-           )
-           
-          
-          ) {
-            flag = false;
-            break;
+          let flag = false;
+          // let index = 0;
+          console.log(roomSelect)
+          for (let r of roomSelect[index]) {
+            console.log(index, roomSelect[index], "🥨")
+            console.log(r._id)
+            const response = await axios.get(`http://localhost:3000/room/${r._id}`);
+            let data = response.data.room[0];
+            console.log("🚀 ~ file: guast.form.tsx:116 ~ handleSubmit ~ data:", data)
+            console.log(data.temporaryEntryDate)
+            // for (let j = 0; j < data.length; j++) {
+            for (let i = 0; i < data.temporaryEntryDate.length; i++) {
+              console.log(data.temporaryEntryDate[i], "", startDateSelect)
+
+              if (moment(data.temporaryEntryDate[i]).isSame(moment(startDateSelect)) &&
+                moment(data.temporaryReleaseDate[i]).isSame(moment(endDateSelect))) {
+                console.log("--", data._id);
+                console.log(startDateSelect)
+                let updatedTemporaryEntryDate = data.temporaryEntryDate.filter((date: any) => {
+                  const momentDate = moment(date).format("YYYY-MM-DD");
+                  const momentStartDate = moment(startDateSelect).format("YYYY-MM-DD");
+                  return momentDate !== momentStartDate;
+                });
+
+                let updatedTemporaryReleaseDate = data.temporaryReleaseDate.filter((date: any) => {
+                  const momentDate = moment(date).format("YYYY-MM-DD");
+                  const momentEndtDate = moment(endDateSelect).format("YYYY-MM-DD");
+                  return momentDate !== momentEndtDate;
+                });
+
+                console.log("updatedTemporaryEntryDate", updatedTemporaryEntryDate,)
+
+
+
+                if (flag == false && data.type == room[index]._id) {
+                  flag = true;
+                  rooms_id.push(data._id);
+                  try {
+                    let updateRoomResponse = await axios.put(
+                      `http://localhost:3000/room/${data._id}`,
+                      {
+                        _id: data._id,
+                        type: data.type,
+                        EntryDate: [startDateSelect],
+                        ReleaseDate: [endDateSelect],
+                        temporaryEntryDate: updatedTemporaryEntryDate,
+                        temporaryReleaseDate: updatedTemporaryReleaseDate,
+                      }
+                    );
+                    console.log("updateRoomResponse🤣", updateRoomResponse);
+
+                    if (index == roomSelect.length - 1) {
+                      try {
+                        const addGuestResponse = await axios.post(`http://localhost:3000/guest`, {
+                          id: id,
+                          name: name,
+                          roomNum: rooms_id,
+                          nightNum: nightNum,
+                          payment: payment,
+                          credit: credit,
+                          EntryDate: moment(startDateSelect, 'YYYY-MM-DD'),
+                          ReleaseDate: moment(endDateSelect, 'YYYY-MM-DD'),
+                        });
+
+                        console.log(addGuestResponse.data);
+                        setIsDialogOpen(true);
+                        setCredit("");
+                        setCreditDate("");
+                        setCvc("");
+                        setId("");
+                        // navigate(`/order.finish`);
+                      } catch (error) {
+                        console.log(error);
+                      }
+                    }
+                  }
+                  // 
+                  catch (error) { }
+
+                }
+                else {
+
+                  try {
+                    let updateRoomResponse = await axios.put(
+                      `http://localhost:3000/room/temporary/${data._id}`,
+                      {
+                        _id: data._id,
+                        type: data.type,
+                        EntryDate: data.EntryDate,
+                        ReleaseDate: data.ReleaseDate,
+                        temporaryEntryDate: updatedTemporaryEntryDate,
+                        temporaryReleaseDate: updatedTemporaryReleaseDate,
+                      }
+                    );
+                    console.log("updateRoomResponse😁", updateRoomResponse);
+                  }
+                  // 
+
+                  catch (error) { }
+                }
+              }
+            }
           }
         }
 
-        if (flag === true) {
-          console.log("true", item._id);
-          handleRoomNumChange(item);
-          isAvailable = true;
-          setRoomNum(item);
-          rnum = item;
-          break;
-        }
       }
-
-      console.log("roomNum", rnum);
-
-      if (isAvailable && rnum) {
-        console.log("OK");
-        console.log(startDateSelect, "startDateSelect")
-        try {
-          const updateRoomResponse = await axios.put(`http://localhost:3000/room/${rnum._id}`, {
-            _id: rnum._id,
-            type: rnum.type,
-            EntryDate: [startDateSelect],
-            ReleaseDate: [endDateSelect],
-          });
-
-
-          try {
-            const addGuestResponse = await axios.post(`http://localhost:3000/guest`, {
-              _id: id,
-              name: name,
-              // roomNum: roomNum._id,
-              nightNum: nightNum,
-              payment: payment,
-              credit: credit,
-              EntryDate: moment(startDateSelect, 'YYYY-MM-DD'),
-              ReleaseDate: moment(endDateSelect, 'YYYY-MM-DD'),
-            });
-
-            // console.log(addGuestResponse.data);
-            // alert("ההזמנה התבצעה בהצלחה, מחכים לך ,צוות המלון");
-            navigate(`/order.finish`);
-
-          } catch (error) {
-            console.log(error);
-          }
-        } catch (error) {
-          console.log(error);
-        }
+      catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-    }}
-  };
-
-  // useEffect(() => {
-  //   console.log("roomNum updated:", roomNum);
-  // }, [roomNum]);
+    }
+  }
 
 
 
   return (
     <div className="background" style={{ height: '100%', minHeight: '89.7vh', }}>
-
       <>
+        <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <DialogContent style={{ textAlign: 'center' }}>
+            <DialogContentText>
+              ההזמנה התבצעה בהצלחה, מחכים לך ,צוות המלון
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Grid container justifyContent="center">
+              <Button onClick={() => setIsDialogOpen(false)} color="primary" style={{ color: '#131054' }} >
+                סגור
+              </Button>
+            </Grid>
+          </DialogActions>
+        </Dialog>
         <Box sx={{ display: 'flex', flexDirection: 'row-reverse', justifyContent: "space-between", }} >
 
           <Card>
 
             <CardContent>
-              <Typography variant="h5" component="h2" sx={{ textAlign: 'center' }}>
+              <Typography variant="h5" sx={{ textAlign: 'center' }}>
                 פרטי הזמנה
               </Typography>
               <br />
               <Grid container spacing={2} width={'30vw'}>
 
                 <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                  <Typography variant="body2">
-                    מתאריך {startDateSelect} <br />
-                    לתאריך {endDateSelect}
+                  <Typography variant="body2" component={'span'} >
+                    מתאריך {formattedStartMoment} <br />
+                    לתאריך {formattedEndMoment}
                     <br />
                     מספר לילות: {nightNum}
                     <br />
                   </Typography>
-                  <Typography variant="body2">
+                  <Typography variant="body2" component={'span'} >
                     סך הכל  לתשלום: {payment} ש"ח
                     <br />
                   </Typography>
                 </Grid>
                 {room?.map((r: any, Rindex: number) => (
 
-                  <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                    {/* <Divider sx={{ height: '24px', color: '#131054' }} /> */}
-                    {/* <Divider sx={{ height: '4px', color: 'black', boxShadow: '0 4px 4px 0 rgba(0,0,0,0.2)', border: 'none' }} /> */}
+                  <Grid item xs={12} sx={{ textAlign: 'center' }} key={Rindex}>
+
                     <hr />
-                    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                      <Typography variant="h6">
+                    <Typography component={'span'} sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                      <Typography component={'span'} variant="h5">
                         {r.name}<br />
 
-                      </Typography>
+                      </Typography >
 
                       {r.description}<br />
                       מספר מיטות: {r.beds}<br />
@@ -238,12 +427,8 @@ export const AddGuest = () => {
 
           </Card>
 
-
-
-          {/* <br />
-        <br /> */}
           <Card sx={{ marginBottom: 'auto', overflow: 'auto', marginTop: "35px" }}>
-            <form onSubmit={handleSubmit}>
+            <form >
               <CardContent>
                 <Grid container spacing={2}>
                   <Grid item xs={6}>
@@ -264,7 +449,7 @@ export const AddGuest = () => {
                       value={id}
                       onChange={handleIdChange}
                       variant="outlined"
-                  
+
                     />
                   </Grid>
 
@@ -288,11 +473,6 @@ export const AddGuest = () => {
                       label="תאריך תפוגה"
                       variant="outlined"
                       value={creditDate}
-                      // inputProps={{
-                      //   maxLength: 7,
-                      //   inputMode: 'numeric',
-                      //   pattern: '[0-9 /]*',
-                      // }}
                       onChange={handleExpirationDateChange}
                     />
                   </Grid>
@@ -321,13 +501,12 @@ export const AddGuest = () => {
 
               </CardContent>
 
-            </form></Card>
+            </form>
+          </Card>
           <br />
         </Box>
       </>
     </div>
-
-
   );
 };
 

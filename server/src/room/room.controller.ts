@@ -5,7 +5,8 @@ import { Room } from './schemas/room.schema';
 
 @Controller('room')
 export class RoomController {
-    constructor(private readonly roomService: RoomService) { }
+    constructor(private readonly roomService: RoomService,
+        ) { }
 
     @SetMetadata(IS_PUBLIC_KEY, true)
     @Post()
@@ -26,9 +27,10 @@ export class RoomController {
 
     
     @SetMetadata(IS_PUBLIC_KEY, true)
-    @Get('/:id')
-    async findById(@Res() response, @Param('id') type) {
-        const room = await this.roomService.readById(type);
+    @Get('/:_id')
+    async findById(@Res() response, @Param('_id') _id) {
+        const room = await this.roomService.readById(_id);
+        console.log("---",room)
         return response.status(HttpStatus.OK).json({
             room
         })
@@ -53,9 +55,20 @@ export class RoomController {
     }
 
     @SetMetadata(IS_PUBLIC_KEY, true)
-    @Put('/:id')
+    @Put('/temporary/:id')
     async updateTemporary(@Res() response, @Param('id') id, @Body() room: Room) {
-        const updatedRoom = await this.roomService.update(id, room);
+        const updatedRoom = await this.roomService.updateRemoveTemporary(id, room);
+        console.log("dcf")
+        return response.status(HttpStatus.OK).json({
+            updatedRoom
+        })
+    }
+
+    @SetMetadata(IS_PUBLIC_KEY, true)
+    @Put('/AddTemporary/:id')
+    async updateAddTemporary(@Res() response, @Param('id') id, @Body() room: Room) {
+        const updatedRoom = await this.roomService.updateAddTemporary(id, room);
+        console.log("dcf")
         return response.status(HttpStatus.OK).json({
             updatedRoom
         })

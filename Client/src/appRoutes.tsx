@@ -8,7 +8,7 @@ import { Rooms } from './components/rooms';
 import { LoginForm } from './components/users/loginForm';
 import { Admin } from './components/users/admin';
 import { User } from './components/users/user';
-import { Button, Container, IconButton, Typography, Tooltip, MenuItem, Box, Menu, Select, TextField, SelectChangeEvent, FormControl, InputLabel } from '@mui/material';
+import { Button, Container, IconButton, Typography, Tooltip, MenuItem, Box, Menu, Select, TextField, SelectChangeEvent, FormControl, InputLabel, Avatar } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import CommentIcon from '@mui/icons-material/Comment';
@@ -23,9 +23,12 @@ import img from './assets/hotel.jpg';
 import logo from './assets/LOGO2.png';
 import { AddGuest } from './components/guast.form';
 import './appRoutes.css';
-import { User2 } from './components/users/user2';
-import { Order } from './components/order.finish';
+
+
 import { Manager } from './components/users/manager';
+import { ProtectAdmin } from './components/users/protectAdmin';
+import { NotFound } from './components/notFound';
+import { AdminTasks } from './components/users/adminTasks';
 
 
 const pages = ['Home', 'About', 'Gallery', 'Rooms'];
@@ -42,7 +45,6 @@ const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 export const AppRoutes = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
-
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -85,24 +87,24 @@ export const AppRoutes = () => {
                 letterSpacing: '.3rem',
                 color: 'inherit',//
                 textDecoration: 'none',
-                 backgroundImage:logo
+                backgroundImage: logo
               }}
             >
               {/* {logo} */}
-             
+
 
             </Typography>
 
-          
+
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            <Box sx={{ display: 'flex', alignItems: 'center',width:'10%' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', width: '10%' }}>
                 <Link to="/">
                   <img
                     src={logo}
                     style={{ width: '90%', height: '90%', textDecoration: 'none' }}
                   />
-                </Link> 
-                </Box>
+                </Link>
+              </Box>
               {pages.map((page) => (
                 <Button
                   key={page}
@@ -136,13 +138,23 @@ export const AppRoutes = () => {
             </Typography>
             {/*  */}
             <Box sx={{ flexGrow: 0 }}>
-              <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  {/* login.. */}
-                  {/* <Avatar alt="Login" src="/static/images/avatar/2.jpg" /> */}
-                </IconButton>
-              </Tooltip>
-              <Menu
+              {/* <Tooltip title="Open settings"> */}
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                {/* login.. */}
+                {/* <Avatar src="/static/images/avatar/2.jpg" component={Link}
+                  to="/login"      {avatarContent}/> */}
+                {/* <Avatar   sx={{ bgcolor: 'rgb(215, 234, 255) ',color: "#131054", textDecoration: 'none' }}
+                  component={Link}
+                  
+                  to="/login" 
+                >
+                
+                </Avatar> */}
+
+                {/* <Avatar sx={{ bgcolor:'white' }}>N</Avatar> */}
+              </IconButton>
+              {/* </Tooltip> */}
+              {/* <Menu
                 sx={{ mt: '45px' }}
                 id="menu-appbar"
                 anchorEl={anchorElUser}
@@ -154,41 +166,44 @@ export const AppRoutes = () => {
                 transformOrigin={{
                   vertical: 'top',
                   horizontal: 'right',
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
-                {settings.map((setting) => (
+                }} */}
+              {/* // open={Boolean(anchorElUser)}
+                // onClose={handleCloseUserMenu}
+              > */}
+              {/* {settings.map((setting) => (
                   <MenuItem key={setting} onClick={handleCloseUserMenu}>
                     <Typography textAlign="center">{setting}</Typography>
                   </MenuItem>
-                ))}
-              </Menu>
+                ))} */}
+              {/* </Menu> */}
             </Box>
           </Toolbar>
         </Container>
 
       </AppBar>
-    
+
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/rooms" element={<Rooms />} />
-          <Route path="/login" element={<LoginForm />} />
-          <Route path="/admin" element={<Protect><Admin /></Protect>} />
-          <Route path="/user" element={<Protect><User /></Protect>} />
+          <Route path="/login" element={<LoginForm/> } />
+          <Route path="/admin" element={<ProtectAdmin ><Admin/></ProtectAdmin>} />
+          <Route path="/user" element={<Protect ><User/></Protect>} />
           <Route path="/user/:id" element={<User />} />
-          <Route path="/AddUser" element={<AddUser />} />
-          <Route path="/order.finish" element={<Order />} />
-          <Route path="/user2" element={<User2 />} />
-          <Route path="/manager" element={<Manager />} />
-          <Route path="/guest.form" element={<AddGuest />} />
+          <Route path="/AddUser" element={<ProtectAdmin><AddUser /></ProtectAdmin>} />
+       
+          <Route path="/adminTasks" element={<ProtectAdmin><AdminTasks /></ProtectAdmin>} />
+
+          <Route path="/edituser" element={<EditUser/>} />
+          <Route path="/manager" element={<ProtectAdmin><Manager   /></ProtectAdmin>} />
+          <Route path="/guest.form" element={<AddGuest  />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </Router>
-    
+
   );
 }
 

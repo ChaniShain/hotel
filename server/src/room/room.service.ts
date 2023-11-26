@@ -17,14 +17,16 @@ export class RoomService {
         return await this.roomModel.find().exec();
     }
 
-    async readById(id): Promise<Room[]> {
-        return await this.roomModel.find({ id }).exec();
+    async readById(_id): Promise<Room[]> {
+        const r = await this.roomModel.find({ _id }).exec();
+        console.log("r", r, _id)
+        return r;
     }
 
     async readByType(type): Promise<Room[]> {
         return await this.roomModel.find({ type }).exec();
     }
-   
+
 
     async update(id, room: Room): Promise<Room> {
         const existRoom = await this.roomModel.findById(id);
@@ -40,7 +42,12 @@ export class RoomService {
     }
 
     // try
-    async updateTemporary(id, room: Room): Promise<Room> {
+    async updateRemoveTemporary(id, room: Room): Promise<Room> {
+        return await this.roomModel.findByIdAndUpdate(id, room, { new: true });
+
+    }
+    async updateAddTemporary(id, room: Room): Promise<Room> {
+       
         const existRoom = await this.roomModel.findById(id);
         const existingEntryDate = existRoom.temporaryEntryDate;
         const existingReleaseDate = existRoom.temporaryReleaseDate;
@@ -53,8 +60,24 @@ export class RoomService {
         // return await existRoom.save();
         return await this.roomModel.findByIdAndUpdate(id, room, { new: true });
 
-      }
-      
+    }
+
+    //   async deleteTemporary(id, EntryDate,EntryDate): Promise<Room> {
+    //     console.log("d")
+    //     const existRoom = await this.roomModel.findById(id);
+    //     const existingEntryDate = existRoom.temporaryEntryDate;
+    //     const existingReleaseDate = existRoom.temporaryReleaseDate;
+    //     existingEntryDate.push(...room.temporaryEntryDate);
+    //     existingReleaseDate.push(...room.temporaryReleaseDate);
+    //     existingEntryDate.sort((a, b) => a.getTime() - b.getTime());
+    //     existingReleaseDate.sort((a, b) => a.getTime() - b.getTime());
+    //     room.temporaryEntryDate = existingEntryDate;
+    //     room.temporaryReleaseDate = existingReleaseDate;
+    //     // return await existRoom.save();
+    //     return await this.roomModel.findByIdAndUpdate(id, room, { new: true });
+
+    //   }
+
 
     async delete(id): Promise<any> {
         return await this.roomModel.findByIdAndDelete(id);

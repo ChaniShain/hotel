@@ -8,11 +8,22 @@ import {
   MenuItem,
   SelectChangeEvent,
   Grid,
+  Alert,
+  AlertTitle,
+  styled,
 } from '@mui/material';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { Admin } from './admin';
 
-export const EditUser: React.FC = () => {
+const FormContainer = styled('div')({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '36px',
+  marginTop: "33px",
+});
+export const EditUser= () => {
   const [idSearch, setIdSearch] = useState<string>('');
   const [id, setId] = useState<string>('');
   const [showNextForm, setShowNextForm] = useState<boolean>(false);
@@ -21,6 +32,8 @@ export const EditUser: React.FC = () => {
   const [lastName, setLastName] = useState<string>('');
   const [role, setRole] = useState<string>('');
   const [job, setJob] = useState<string>('');
+  const [error, setError] = useState<string>('');
+
   const handleJobChange = (e: SelectChangeEvent<string>) => {
     setJob(e.target.value);
   };
@@ -68,13 +81,22 @@ export const EditUser: React.FC = () => {
         setLastName(response.data.user.lastName);
         setPassword(response.data.user.password);
         setRole(response.data.user.roles[0]);
-        setShowNextForm(true); // פתיחת הטופס הבא
-
+        setJob(response.data.user.job)
+        setShowNextForm(true); 
+        setError("");
       } else {
-        alert("המשתמש לא נמצא");
+        setError("העובד לא קיים");
+        // alert("המשתמש לא נמצא");
       }
     } catch (error) {
       console.log(error);
+      setShowNextForm(false); 
+      setError(" אינך רשום במערכת");
+      setId("");
+      setFirstName("");
+      setLastName("");
+      setPassword("");
+      setRole("");
     }
     console.log('Submitted!', {
       id: id,
@@ -107,6 +129,7 @@ export const EditUser: React.FC = () => {
         firstName: firstName,
         lastName: lastName,
         roles: role,
+        job:job
       });
     } catch (error) {
       console.log(error);
@@ -136,7 +159,15 @@ export const EditUser: React.FC = () => {
   };
   return (
     <>
+    <Admin  />
       <form onSubmit={handleSubmit}>
+      <FormContainer >
+      {error && (
+          <Alert severity="error" sx={{width:"380px"}}>
+            <AlertTitle>שגיאה</AlertTitle>
+            {error}
+          </Alert>
+        )}
         <Grid container spacing={2} justifyContent="center">
           <Grid item xs={12} md={6}>
             <TextField
@@ -149,13 +180,13 @@ export const EditUser: React.FC = () => {
             <Grid style={{ display: 'flex', justifyContent: 'center' }}>
 
               <Button type="submit" variant="contained" style={{ backgroundColor: '#131054' }}>
-                חפש
+                חפש עובד
               </Button>
             </Grid>
           </Grid>
         </Grid>
+        </FormContainer>
       </form>
-
       {showNextForm && (
         <form onSubmit={handleNextFormSubmit}>
           
@@ -225,7 +256,9 @@ export const EditUser: React.FC = () => {
                 מחק עובד
               </Button>
             </Grid></Grid>
+            <br />
         </form>
+       
       )}
 
     </>

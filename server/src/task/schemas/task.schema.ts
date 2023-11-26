@@ -24,6 +24,12 @@ export class Task {
     @Prop()
     DoneBy: string;
 
+    @Prop()
+    isMove: boolean;
+
+    @Prop()
+    moveBy: string;
+
 
 }
 

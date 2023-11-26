@@ -34,7 +34,7 @@ export const About = () => {
 
                     </Typography>
                     <Typography variant="body1" align="center" sx={{ mb: 2 }}>
-                        ,המלון שלנו מציע מגוון חדרים יוקרתיים ומרווחים, מסעדה איכותית, בר, בריכה, מרכז כושר ועוד.
+                        ,המלון שלנו מציע מגוון חדרים יוקרתיים ומרווחים, מסעדה איכותית, בר, בריכה, מרכז כושר ועוד
                     </Typography>
                     <Typography variant="body1" align="center" sx={{ mb: 2 }}>
                         . תפנו אלינו לשאול שאלות או

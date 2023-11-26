@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
-export const Protect: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ProtectAdmin: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const navigate = useNavigate();
     const [isPermission, setisPermission] = useState<boolean>(false);
 
@@ -17,12 +17,17 @@ export const Protect: React.FC<{ children: React.ReactNode }> = ({ children }) =
         }
 
         else {
+            
+            if (isAdmin === "false"){
+                navigate('/login');
 
-            setisPermission(true)
+            }
+            else
+                setisPermission(true)
         }
     }, [navigate]);
 
 
-    return isPermission ? <>{children}</> : null
+    return isPermission?<>{children}</>:null
 };
 

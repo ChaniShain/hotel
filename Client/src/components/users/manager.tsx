@@ -1,23 +1,50 @@
 // import { BarChart } from '@mui/x-charts/BarChart';
-import { Box, Container, ThemeProvider, Typography } from "@mui/material"
+import { Box, Button, Container, ThemeProvider, Typography } from "@mui/material"
 import { BarChart } from '@mui/x-charts/BarChart';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useEffect, useState } from "react";
+import { axisClasses } from "@mui/x-charts";
+import { Admin } from "./admin";
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+// import Papa from 'papaparse';
+import Papa, { ParseResult } from "papaparse"
+type Data = {
+  id: any
+ num:any
+}
 
-
+type Values = {
+  data: Data[]
+}
 export const Manager = () => {
-  let a=['bar A', 'bar B', 'bar C'];
-  let b=[2, 5, 3];
+
   const token = Cookies.get('token');
   let usersList: string[] = [];
   let _idList: string[] = [];
   let isDoneList: number[] = [];
-  const [data_idList, setData_idList] = useState<string[]>([]);
+  const [isDataLoaded, setIsDataLoaded] = useState(true);
+  
+  const [data_idList, setData_idList] = useState<any[]>([]);
   const [dataIsDoneList, setDataIsDoneList] = useState<number[]>([]);
-
+  // const [values, setValues] = useState<Values | undefined>()
   const [flag, setFlag] = useState(false);
 
+
+  const chartSetting = {
+    yAxis: [
+      {
+        label: 'מספר משימות שבוצעו',
+      },
+    ],
+    width: 500,
+    height: 300,
+    sx: {
+      [`.${axisClasses.left} .${axisClasses.label}`]: {
+        transform: 'translate(-20px, 0)',
+      },
+    },
+  };
   // let isDoneList: number[] = [];
   useEffect(() => {
     // fetchUsers();
@@ -84,8 +111,60 @@ export const Manager = () => {
     fetchUsers();
   }, [flag]);
 
+  useEffect(() => {
+    const csvFilePath = 'C:/חני תכנות/Project/exported_data.csv';
+
+    const fetchData = async () => {
+      try {
+        const response = await fetch(csvFilePath);
+        const csvData = await response.text();
+
+        Papa.parse(csvData, {
+          header: true,
+          complete: (result) => {
+            console.log(result.data);
+            // הנתונים מהקובץ CSV נמצאים ב-result.data
+          },
+        });
+      } catch (error) {
+        console.error('Error fetching CSV file:', error);
+      }
+    };
+
+    fetchData();
+  }, []); // השגרה זו תופעל פעם אחת לאחר הרכבת הרכיב
+
+
+
+  const handleExportCSV = () => {
+    const dataRows = data_idList.map((id, index) => ({
+      ID: id,
+      NUM: dataIsDoneList[index],
+    }));
+    const csv = Papa.unparse({
+      fields: ['ID', 'NUM'],
+      data: dataRows,
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'exported_data.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+    setIsDataLoaded(true);
+  };
   return (
-    flag ? (
+    <>
+    <Admin   />
+    { flag ? (
+   
+   
       <BarChart
         xAxis={[
           {
@@ -101,8 +180,17 @@ export const Manager = () => {
         ]}
         width={800}
         height={300}
-      />)
-      : null
+      />
+      
+      )
+      : null}
+        {isDataLoaded ? (
+        <Button sx={{ color: '#02B2AF', marginTop:'5%', marginLeft:'25%'}} onClick={handleExportCSV}>שמירת קובץ הנתונים
+        {/* <Icon>FileDownloadIcon</Icon> */}
+        <FileDownloadIcon/>
+        </Button>
+      ) : null}
+      </>
   )
 
 }

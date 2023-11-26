@@ -91,7 +91,7 @@ export const Gallery = () => {
   return (
 
     <ImageList className="background"
-    
+     style={{ height: '100%', minHeight: '89.7vh', }}
       variant="quilted"
       cols={4}
       rowHeight={200}

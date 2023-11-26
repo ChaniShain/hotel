@@ -5,10 +5,12 @@ import { Role } from 'src/auth/role/role.enum';
 import { Roles } from 'src/auth/role/roles.decorator';
 import { Task } from 'src/task/schemas/task.schema';
 import { Room_type } from './schemas/room_type.schema';
+import { RoomService } from 'src/room/room.service';
 
 @Controller('room_type')
 export class RoomTypeController {
-    constructor(private readonly room_typeService: RoomTypeService) { }
+    constructor(private readonly room_typeService: RoomTypeService,
+        private readonly room_Service :RoomService) { }
 
     @SetMetadata(IS_PUBLIC_KEY, true)
     @Post()
@@ -31,6 +33,17 @@ export class RoomTypeController {
     @Get('/:type')
     async findById(@Res() response, @Param('type') type) {
         const room_type = await this.room_typeService.readById(type);
+        return response.status(HttpStatus.OK).json({
+            room_type
+        })
+    }
+
+    @SetMetadata(IS_PUBLIC_KEY, true)
+    
+    @Get('/bedsNum/:bedsNum')
+    async findBybedsNum(@Res() response, @Param('bedsNum') num) {
+        const room_type = await this.room_typeService.readByNumBeds(num);
+        // console.log(room_type)
         return response.status(HttpStatus.OK).json({
             room_type
         })

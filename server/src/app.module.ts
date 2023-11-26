@@ -11,8 +11,8 @@ import { UserModule } from './user/user.module';
 import { RoomTypeModule } from './room_type/room_type.module';
 import { RoomModule } from './room/room.module';
 import { GuestModule } from './guest/guest.module';
-import { ImageModule } from './image/image.module';
-
+// import { ImageModule } from './image/image.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   
@@ -24,7 +24,8 @@ import { ImageModule } from './image/image.module';
     RoomTypeModule,
     RoomModule,
     GuestModule,
-    ImageModule,
+
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

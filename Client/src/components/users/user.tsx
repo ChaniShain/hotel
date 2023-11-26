@@ -13,6 +13,7 @@ export const User = () => {
   const navigate = useNavigate();
   const [tasks, setTasks] = useState<any[]>([]);
   const [category, setCategory] = useState();
+  const [name,setName]=useState<string>("");
   const token = Cookies.get('token');
 
   const fetchTasks = async (category: any) => {
@@ -52,8 +53,9 @@ export const User = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
+      setName(response.data.user.firstName+" "+response.data.user.lastName);
       console.log(response.data.user.job);
+    
       setCategory(response.data.user.job)
       fetchTasks(response.data.user.job);
     } catch (error) {
@@ -62,33 +64,35 @@ export const User = () => {
   };
 
   return (
-    <div>
+      <div className="background" style={{ height: '100%', minHeight: '89.7vh', }}>
 
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        {/* <h2>שלום {id}</h2> */}
-        <h2> משימות עובד  {id}</h2><br />
-        {/* <h2>משימות: </h2> */}
-        </div>
-
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <TableContainer component={Paper} sx={{ width: '30vw' }} >
-              <Table sx={{ width: '30vw' }} aria-label="simple table">
-                <TableHead sx={{ width: '30vw' }}>
-                  <TableRow>
-                    <TableCell sx={{ width: '2vw' }}>תאור</TableCell>
-                    <TableCell sx={{ width: '2vw' }}>מקום</TableCell>
-                    <TableCell sx={{ width: '2vw' }}>נעשה</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {tasks.map((task, index) => (
-                    <SingleTodo todo={task} key={task._id} todos={tasks} id={id} setTodos={setTasks} />
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          {/* <h2>שלום {id}</h2> */}
+          <h2> משימות עובד   {name}</h2><br />
+          {/* <h2>משימות: </h2> */}
           </div>
+
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <TableContainer component={Paper} sx={{ width: 'auto' }} >
+                <Table sx={{ width: 'auto' }} aria-label="simple table">
+                  <TableHead sx={{ width: 'auto' }}>
+                    <TableRow>
+                      <TableCell sx={{ width: '18vw' }}>תאור</TableCell>
+                      <TableCell sx={{ width: '10vw' }}>מקום</TableCell>
+                      <TableCell sx={{ width: '2vw' }}>נעשה</TableCell>
+                      <TableCell sx={{ width: '8vw' }}>העבר למנהל</TableCell>
+
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {tasks.map((task, index) => (
+                      <SingleTodo todo={task} key={task._id} todos={tasks} id={id} setTodos={setTasks} />
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+            </div>
         </div>
         );
 };
