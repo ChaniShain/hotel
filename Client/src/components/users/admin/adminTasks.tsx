@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Cookies from 'js-cookie';
 import { Admin } from "./admin";
 import { AdminSingleTodo } from './adminSingleTodo'
-import { SingleTodo } from "./singleTodo";
-
+import { SingleTodo } from "../user/singleTodo";
+import serverConfig from '../../../config';
 
 export const AdminTasks = () => {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -14,12 +14,11 @@ export const AdminTasks = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/task/isMove', {
+        const response = await axios.get(`${serverConfig.serverUrl}/task/isMove`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log(response.data.task);
         setTasks(response.data.task);
       } catch (error) {
         console.error(error);
@@ -35,9 +34,7 @@ export const AdminTasks = () => {
       <div className="background" style={{ height: '100%', minHeight: '89.7vh', }}>
 
         <div style={{ display: "flex", justifyContent: "center" }}>
-          {/* <h2>שלום {id}</h2> */}
           <h2> משימות שנשלחו למנהל  </h2><br />
-          {/* <h2>משימות: </h2> */}
         </div>
 
         <div style={{ display: "flex", justifyContent: "center" }}>
@@ -49,9 +46,6 @@ export const AdminTasks = () => {
                   <TableCell sx={{ width: '10vw' }}>מקום</TableCell>
                   <TableCell sx={{ width: '8vw' }}>נשלח מעובד</TableCell>
                   <TableCell sx={{ width: '2vw' }}> טופל</TableCell>
-
-                  {/* <TableCell sx={{ width: '8vw' }}>העבר למנהל</TableCell> */}
-
                 </TableRow>
               </TableHead>
               <TableBody>

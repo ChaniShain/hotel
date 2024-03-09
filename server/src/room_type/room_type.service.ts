@@ -3,6 +3,7 @@ import { Room_type } from './schemas/room_type.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Room } from 'src/room/schemas/room.schema';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class RoomTypeService {  constructor(@InjectModel('Room_type') private room_typeModel: Model<Room_type>,
@@ -50,4 +51,6 @@ async update(id, room_type: Room_type): Promise<Room_type> {
 
 async delete(id): Promise<any> {
     return await this.room_typeModel.findByIdAndDelete(id);
-}}
+}
+
+}

@@ -27,8 +27,8 @@ export class GuestController {
    
     @SetMetadata(IS_PUBLIC_KEY, true)
     @Get('/:id')
-    async findById(@Res() response, @Param('id') type) {
-        const guest= await this.guestService.readById(type);
+    async findById(@Res() response, @Param('id') id) {
+        const guest= await this.guestService.readById(id);
         return response.status(HttpStatus.OK).json({
             guest
         })

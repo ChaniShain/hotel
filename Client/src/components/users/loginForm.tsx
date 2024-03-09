@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { useNavigate , } from 'react-router-dom';
+import { useNavigate, } from 'react-router-dom';
 import { TextField, Button, IconButton, InputAdornment, Box, Alert, AlertTitle } from '@mui/material';
 import { styled } from '@mui/system';
-
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import serverConfig from '../../config';
 
 const FormContainer = styled('div')({
   display: 'flex',
@@ -16,9 +16,9 @@ const FormContainer = styled('div')({
   marginTop: "33px",
 });
 
-export const LoginForm= () => {
-  // props.setAvatarContent("f");
-    const navigate = useNavigate();
+export const LoginForm = () => {
+
+  const navigate = useNavigate();
   const [id, setId] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -27,7 +27,7 @@ export const LoginForm= () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/auth/login', {
+      const response = await axios.post(`${serverConfig.serverUrl}/auth/login`, {
         _id: id,
         password: password,
 
@@ -37,27 +37,25 @@ export const LoginForm= () => {
 
       try {
         console.log(token);
-        const isAdmin = await axios.post('http://localhost:3000/auth/decode', response.data);
+        const isAdmin = await axios.post(`${serverConfig.serverUrl}/auth/decode`, response.data);
         Cookies.set('isAdmin', isAdmin.data, { expires: 1 });
         if (isAdmin.data)
           navigate('/admin');
         else navigate(`/user/${id}`);
-    
+
 
       }
       catch (error) {
-        // alert("something wrong!");
         setError(" אינך רשום במערכת");
       }
       (true);
     } catch (error) {
-      // alert("something wrong!");
       setError("אינך רשום במערכת");
 
       console.error(error);
     }
 
- 
+
   };
 
   const toggleShowPassword = () => {
@@ -67,8 +65,8 @@ export const LoginForm= () => {
   return (
     <form onSubmit={handleSubmit}>
       <FormContainer >
-      {error && (
-          <Alert severity="error" sx={{width:"380px"}}>
+        {error && (
+          <Alert severity="error" sx={{ width: "380px" }}>
             <AlertTitle>שגיאה</AlertTitle>
             {error}
           </Alert>

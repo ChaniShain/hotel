@@ -17,7 +17,6 @@ export class Room {
     @Prop()
     type: Type_enum;
 
-
     @Prop({ type: [Date] })
     EntryDate: Date[];
 

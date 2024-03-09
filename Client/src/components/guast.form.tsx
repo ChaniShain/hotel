@@ -6,9 +6,8 @@ import Cookies from 'js-cookie';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import moment from 'moment';
 // import { Carousel, ThemeProvider } from 'react-bootstrap';
-import { createTheme, } from '@mui/material/styles';
 import '../App.css';
-import { Height } from '@mui/icons-material';
+import serverConfig from '../config';
 
 interface RoomData {
   _id: string;
@@ -21,7 +20,9 @@ export const AddGuest = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { startDateSelect, endDateSelect, room, roomSelect } = location.state || {};
-  console.log("roomSelect", roomSelect)
+  console.log("startDateSelect", startDateSelect)
+  console.log("endDateSelect", endDateSelect)
+
   let localroom: any = room;
   const startMoment = moment(startDateSelect, 'YYYY-MM-DD');
 
@@ -36,122 +37,32 @@ export const AddGuest = () => {
     sum += room[index].price * nightNum;
 
   }
-  console.log(room, "#",)
-  // const payment = nightNum * room.price;
   const payment = sum;
   const [id, setId] = useState<string>('');
   const [name, setName] = useState<string>('');
-  // const [roomNum, setRoomNum] = useState<RoomData>();
   const [credit, setCredit] = useState<string>('');
   const [creditDate, setCreditDate] = useState<string>('');
   const [cvc, setCvc] = useState<string>('');
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // useEffect(() => {
-  //   const handleBeforeUnload = async () => {
-  //     if (!formSubmitted)
-
-  //    await   update();
-  //     console.log("API call before page unload");
-  //   };
-
-  //   window.addEventListener('unload', handleBeforeUnload);
-
-  //   return () => {
-  //     window.removeEventListener('unload', handleBeforeUnload);
-  //   };
-  // }, []);
-
-  // window.addEventListener("beforeunload", (event) => {
-  //   update();
-  //   console.log("API call before page reload");
-  // });
-  // ----------------------
-  // useEffect(() => {
-  //   const handleBeforeUnload = async () => {
-  //     if (!formSubmitted) {
-  //      const data= await update();
-  //       console.log("API call before page unload");
-  //     }
-  //   };
-
-  //   window.addEventListener("unload", handleBeforeUnload);
-
-  //   return () => {
-  //     window.removeEventListener("unload", handleBeforeUnload);
-  //   };
-  // }, []);
-  // ----------------------------------
-
-  // useEffect(() => {
-  //   const handleUnload = async () => {
-  //     if (!formSubmitted) {
-  //       const promise = update();
-  //       window.addEventListener("unload", () => {
-  //         promise.catch(() => {
-  //           // הסגירה של הדף מופסקת
-  //           window.close();
-  //         });
-  //       });
-  //     }
-  //   };
-
-  //   window.addEventListener("unload", handleUnload);
-
-  //   return () => {
-  //     window.removeEventListener("unload", handleUnload);
-  //   };
-  // }, []);
-
-
-  // window.addEventListener("unload", (e) => {
-  //   e.preventDefault();
-  //   if (!formSubmitted)
-  //   update();
-  //   // e.returnValue = '';
-  //   console.log("API call after page reload");
-  // });
-
-  const handleUnload = (e: BeforeUnloadEvent) => {
-    if (!formSubmitted) {
-
-      e.preventDefault();
-      e.returnValue = ''; // This is used for most browsers to show the confirmation message.
-      // 
-
-      update();
-
-    }
-  };
   const update = async () => {
-    console.log("------------------------------");
     try {
       for (let index = 0; index < roomSelect.length; index++) {
 
         for (const r of roomSelect[index]) {
-          console.log(r)
-          const response = await axios.get(`http://localhost:3000/room/${r._id}`);
+          const response = await axios.get(`${serverConfig.serverUrl}/room/${r._id}`);
           let data = response.data.room;
-
-          console.log("🚀 ~ file: guast.form.tsx:116 ~ handleSubmit ~ data:", data)
-
           for (let j = 0; j < data.length; j++) {
             for (let i = 0; i < data[j].temporaryEntryDate.length; i++) {
-              console.log(data[j].temporaryEntryDate[i], "", startDateSelect)
-
               if (moment(data[j].temporaryEntryDate[i]).isSame(moment(startDateSelect)) &&
                 moment(data[j].temporaryReleaseDate[i]).isSame(moment(endDateSelect))) {
-                console.log("--", data[j]._id);
-                console.log(startDateSelect)
-                // let updatedTemporaryEntryDate = data[j].temporaryEntryDate.filter((date: any) =>moment(date)  !== startDateSelect);
-                // let updatedTemporaryEntryDate = data[j].temporaryEntryDate.filter((date: any) => !moment(date).isSame(moment(startDateSelect)));
+
                 let updatedTemporaryEntryDate = data[j].temporaryEntryDate.filter((date: any) => {
                   const momentDate = moment(date).format("YYYY-MM-DD");
                   const momentStartDate = moment(startDateSelect).format("YYYY-MM-DD");
                   return momentDate !== momentStartDate;
                 });
-                // let updatedTemporaryReleaseDate = data[j].temporaryReleaseDate.filter((date: any) => moment(date)  !== endDateSelect);
 
                 let updatedTemporaryReleaseDate = data[j].temporaryReleaseDate.filter((date: any) => {
                   const momentDate = moment(date).format("YYYY-MM-DD");
@@ -159,10 +70,9 @@ export const AddGuest = () => {
                   return momentDate !== momentEndtDate;
                 });
 
-                console.log("updatedTemporaryEntryDate", updatedTemporaryEntryDate,)
                 try {
                   let updateRoomResponse = await axios.put(
-                    `http://localhost:3000/room/temporary/${data[j]._id}`,
+                    `${serverConfig.serverUrl}/room/temporary/${data[j]._id}`,
                     {
                       _id: data[j]._id,
                       type: data[j].type,
@@ -172,7 +82,6 @@ export const AddGuest = () => {
                       temporaryReleaseDate: updatedTemporaryReleaseDate,
                     }
                   );
-                  console.log("updateRoomResponse😁", updateRoomResponse);
                 } catch (error) { }
 
               }
@@ -248,27 +157,15 @@ export const AddGuest = () => {
       let rooms_id = [];
       try {
         for (let index = 0; index < roomSelect.length; index++) {
-          console.log(index, roomSelect[index], "🍟")
-
-
           let flag = false;
-          // let index = 0;
-          console.log(roomSelect)
           for (let r of roomSelect[index]) {
-            console.log(index, roomSelect[index], "🥨")
-            console.log(r._id)
-            const response = await axios.get(`http://localhost:3000/room/${r._id}`);
+
+            const response = await axios.get(`${serverConfig.serverUrl}/room/${r._id}`);
             let data = response.data.room[0];
-            console.log("🚀 ~ file: guast.form.tsx:116 ~ handleSubmit ~ data:", data)
-            console.log(data.temporaryEntryDate)
-            // for (let j = 0; j < data.length; j++) {
             for (let i = 0; i < data.temporaryEntryDate.length; i++) {
-              console.log(data.temporaryEntryDate[i], "", startDateSelect)
 
               if (moment(data.temporaryEntryDate[i]).isSame(moment(startDateSelect)) &&
                 moment(data.temporaryReleaseDate[i]).isSame(moment(endDateSelect))) {
-                console.log("--", data._id);
-                console.log(startDateSelect)
                 let updatedTemporaryEntryDate = data.temporaryEntryDate.filter((date: any) => {
                   const momentDate = moment(date).format("YYYY-MM-DD");
                   const momentStartDate = moment(startDateSelect).format("YYYY-MM-DD");
@@ -281,16 +178,14 @@ export const AddGuest = () => {
                   return momentDate !== momentEndtDate;
                 });
 
-                console.log("updatedTemporaryEntryDate", updatedTemporaryEntryDate,)
-
-
 
                 if (flag == false && data.type == room[index]._id) {
                   flag = true;
                   rooms_id.push(data._id);
+
                   try {
                     let updateRoomResponse = await axios.put(
-                      `http://localhost:3000/room/${data._id}`,
+                      `${serverConfig.serverUrl}/room/${data._id}`,
                       {
                         _id: data._id,
                         type: data.type,
@@ -300,34 +195,32 @@ export const AddGuest = () => {
                         temporaryReleaseDate: updatedTemporaryReleaseDate,
                       }
                     );
-                    console.log("updateRoomResponse🤣", updateRoomResponse);
 
                     if (index == roomSelect.length - 1) {
                       try {
-                        const addGuestResponse = await axios.post(`http://localhost:3000/guest`, {
+                        const addGuestResponse = await axios.post(`${serverConfig.serverUrl}/guest`, {
                           id: id,
                           name: name,
                           roomNum: rooms_id,
                           nightNum: nightNum,
                           payment: payment,
                           credit: credit,
-                          EntryDate: moment(startDateSelect, 'YYYY-MM-DD'),
-                          ReleaseDate: moment(endDateSelect, 'YYYY-MM-DD'),
+                          EntryDate: startDateSelect,
+                          ReleaseDate: endDateSelect,
                         });
 
-                        console.log(addGuestResponse.data);
                         setIsDialogOpen(true);
+                        setFormSubmitted(true);
+                        setName("");
                         setCredit("");
                         setCreditDate("");
                         setCvc("");
                         setId("");
-                        // navigate(`/order.finish`);
                       } catch (error) {
                         console.log(error);
                       }
                     }
                   }
-                  // 
                   catch (error) { }
 
                 }
@@ -335,7 +228,7 @@ export const AddGuest = () => {
 
                   try {
                     let updateRoomResponse = await axios.put(
-                      `http://localhost:3000/room/temporary/${data._id}`,
+                      `${serverConfig.serverUrl}/room/temporary/${data._id}`,
                       {
                         _id: data._id,
                         type: data.type,
@@ -345,9 +238,7 @@ export const AddGuest = () => {
                         temporaryReleaseDate: updatedTemporaryReleaseDate,
                       }
                     );
-                    console.log("updateRoomResponse😁", updateRoomResponse);
                   }
-                  // 
 
                   catch (error) { }
                 }
@@ -428,80 +319,80 @@ export const AddGuest = () => {
           </Card>
 
           <Card sx={{ marginBottom: 'auto', overflow: 'auto', marginTop: "35px" }}>
-            <form >
-              <CardContent>
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="שם"
-                      variant="outlined"
-                      value={name}
-                      onChange={handleNameChange}
+            {!formSubmitted && (
+              <form >
+                <CardContent>
+                  <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                      <TextField
+                        fullWidth
+                        label="שם"
+                        variant="outlined"
+                        value={name}
+                        onChange={handleNameChange}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <TextField
+                        fullWidth
+                        label="תעודת זהות"
+                        value={id}
+                        onChange={handleIdChange}
+                        variant="outlined"
 
+                      />
+                    </Grid>
 
-                    />
+                  </Grid></CardContent>
+                <CardContent>
+                  <Grid container spacing={2}>
+
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        label="מספר אשראי"
+                        value={credit}
+                        onChange={handleCardNumberChange}
+                        variant="outlined"
+                      />
+                    </Grid>
+
+                    <Grid item xs={6}>
+                      <TextField
+                        fullWidth
+                        label="תאריך תפוגה"
+                        variant="outlined"
+                        value={creditDate}
+                        onChange={handleExpirationDateChange}
+                      />
+                    </Grid>
+
+                    <Grid item xs={6}>
+                      <TextField
+                        fullWidth
+                        label="CVC"
+                        variant="outlined"
+                        value={cvc}
+                        onChange={handleCvcChange}
+                      />
+                    </Grid>
+                    <Grid item xs={6} >
+                      <Button type="submit" variant="contained" color="primary" onClick={handleSubmit} sx={{
+                        backgroundColor: '#131054',
+                        '&:hover': {
+                          backgroundColor: '#fff',
+                          color: '#131054',
+                        },
+                      }} >
+                        שמור
+                      </Button>
+                    </Grid>
                   </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="תעודת זהות"
-                      value={id}
-                      onChange={handleIdChange}
-                      variant="outlined"
 
-                    />
-                  </Grid>
+                </CardContent>
 
-                </Grid></CardContent>
-              <CardContent>
-                <Grid container spacing={2}>
-
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="מספר אשראי"
-                      value={credit}
-                      onChange={handleCardNumberChange}
-                      variant="outlined"
-                    />
-                  </Grid>
-
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="תאריך תפוגה"
-                      variant="outlined"
-                      value={creditDate}
-                      onChange={handleExpirationDateChange}
-                    />
-                  </Grid>
-
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="CVC"
-                      variant="outlined"
-                      value={cvc}
-                      onChange={handleCvcChange}
-                    />
-                  </Grid>
-                  <Grid item xs={6} >
-                    <Button type="submit" variant="contained" color="primary" onClick={handleSubmit} sx={{
-                      backgroundColor: '#131054',
-                      '&:hover': {
-                        backgroundColor: '#fff',
-                        color: '#131054',
-                      },
-                    }} >
-                      שמור
-                    </Button>
-                  </Grid>
-                </Grid>
-
-              </CardContent>
-
-            </form>
+              </form>
+            )}
           </Card>
           <br />
         </Box>

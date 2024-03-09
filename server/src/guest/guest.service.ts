@@ -18,8 +18,11 @@ async readAll(): Promise<Guest[]> {
     return await this.guestModel.find().exec();
 }
 
-async readById(_id): Promise<Guest> {
-    return await this.guestModel.findById(_id).exec();
+async readById(id): Promise<Guest  | null> {
+    return await this.guestModel.findOne({id}).exec();
+   
+    
+    
 }
 
 async update(id, guest: Guest): Promise<Guest> {

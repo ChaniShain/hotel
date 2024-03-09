@@ -10,32 +10,38 @@ import SendIcon from '@mui/icons-material/Send';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-// import "./styles.css"
+import moment from 'moment';
+import serverConfig from '../../../config';
+
 interface Props {
     todo: any;
     todos: any[];
-    id:string | undefined;
+    id: string | undefined;
     setTodos: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-export const SingleTodo = ({ todo, todos, id,setTodos }: Props) => {
+export const AdminSingleTodo = ({ todo, todos, id, setTodos }: Props) => {
     const [edit, setEdit] = useState<boolean>(false);
     const [editTodo, setEditTodo] = useState<string>(todo.description);
     const token = Cookies.get('token');
 
-    
+
 
     const handleIsDone = async (_id: any) => {
         // the done task delete from the tasks list
         console.log(todo._id)
+
         setTodos(todos.filter((todo) => todo._id !== _id));
+        const today = moment();
+        const today2 = today.format("YYYY-MM-DD HH:mm:ss");
         try {
-            const response = await axios.put(`http://localhost:3000/task/${todo._id}`, {
+            const response = await axios.put(`${serverConfig.serverUrl}/task/${todo._id}`, {
                 job: todo.job,
                 location: todo.location,
                 description: todo.description,
                 isDone: true,
                 DoneBy: id,
+                date: today2,
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -54,41 +60,30 @@ export const SingleTodo = ({ todo, todos, id,setTodos }: Props) => {
         console.log(todo._id)
         setTodos(todos.filter((todo) => todo._id !== _id));
         try {
-            const response = await axios.put(`http://localhost:3000/task/${todo._id}`, {
-              job: todo.job,
-              location: todo.location,
-              description: todo.description,
-              isDone: false,
-              DoneBy:"",
-              isMove: true,
-              moveBy:id,
+            const response = await axios.put(`${serverConfig.serverUrl}/task/${todo._id}`, {
+                job: todo.job,
+                location: todo.location,
+                description: todo.description,
+                isDone: false,
+                DoneBy: "",
+                isMove: true,
+                moveBy: id,
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-    
-            console.log(response.data);
-            // alert("תודה! קיבלנו את פניתך ונטפל בהקדם");
-    
-          } catch (error) {
-            console.log(error);
-          }
-        
 
-        
+            console.log(response.data);
+
+        } catch (error) {
+            console.log(error);
+        }
+
+
+
     };
 
-
-    // const handleEdit = (e: React.FormEvent, _id: number) => {
-    //     e.preventDefault();
-    //     setTodos(
-    //         todos.map((todo) =>
-    //             todo._id === _id ? { ...todo, todo: editTodo } : todo
-    //         )
-    //     );
-    //     setEdit(false);
-    // };
 
 
     return (
@@ -101,18 +96,17 @@ export const SingleTodo = ({ todo, todos, id,setTodos }: Props) => {
                     {todo.location}
                 </Typography>
             </TableCell >
+            <TableCell sx={{ width: '8vw' }}>
+                {todo.moveBy}
+
+            </TableCell>
             <TableCell sx={{ width: '2vw' }}>
                 <IconButton onClick={() => handleIsDone(todo._id)}>
                     <DoneIcon />
                 </IconButton>
-                
+
             </TableCell>
-            <TableCell sx={{ width: '8vw' }}>
-                <IconButton onClick={() => handleIsSend(todo._id)} sx={{marginLeft:'18px'}}>
-                    <ArrowForwardIcon />
-                </IconButton>
-                
-            </TableCell>
+
         </TableRow>
     );
 }

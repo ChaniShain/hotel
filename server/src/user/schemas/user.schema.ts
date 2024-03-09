@@ -25,6 +25,9 @@ export class User {
 
     @Prop()
     roles: Role[];
+
+    @Prop()
+    isActive:boolean;
 }
 
 

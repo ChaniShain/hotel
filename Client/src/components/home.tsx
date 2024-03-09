@@ -16,8 +16,9 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PetsIcon from '@mui/icons-material/Pets';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
+import moment from 'moment';
+import serverConfig from '../config';
 
-// import {  ThemeProvider } from "@mui/material"
 
 export const Home = () => {
   const [isInputOpen, setIsInputOpen] = useState(false);
@@ -26,55 +27,16 @@ export const Home = () => {
   const [location, setLocation] = useState('');
   const [id, setId] = useState('');
   const selectRef = useRef<HTMLSelectElement | null>(null);
-
   const chatRef = useRef<HTMLDivElement | null>(null);
   const [isDialog1Open, setIsDialog1Open] = useState(false);
   const [isDialog2Open, setIsDialog2Open] = useState(false);
 
-  // const closeChat = () => {
-  //   setIsInputOpen(false);
-  //   setCategory('');
-  //   setId('');
-  //   setLocation('');
-  //   setMessage('');
-  // };
   const navigate = useNavigate();
 
   const handleOrderRoom = () => {
     navigate(`/rooms`);
-
   }
 
-  // const handleClickOutside = (event: { target: any; }) => { 
-
-  //   if (isInputOpen) {
-  //     const isInsideChat = chatRef.current && chatRef.current.contains(event.target as Node);
-  //     const isInsideSelect = selectRef.current && selectRef.current.contains(event.target as Node);
-
-  //     if ((!isInsideChat && isInsideSelect)) {
-  //       closeChat(); 
-  //     }
-  //   }
-
-
-
-  // };
-  // useEffect(() => {
-
-  //   if (isInputOpen) {
-
-  //     document.addEventListener('click', handleClickOutside);
-  //   } else {
-  //     document.removeEventListener('click', handleClickOutside);
-  //   }
-
-  //   return () => {
-  //     document.removeEventListener('click', handleClickOutside);
-  //   };
-  // }, [isInputOpen]);
-
-
-  // 
   const [scrollY, setScrollY] = useState(0);
   const targetScrollPosition = 80;
   const handleScroll = () => {
@@ -89,9 +51,7 @@ export const Home = () => {
     };
   }, []);
 
-  let isScrollNearTarget = (scrollY >= targetScrollPosition && scrollY < 1800);
-  console.log(isScrollNearTarget)
-
+  let isScrollNearTarget = (scrollY >= targetScrollPosition && scrollY < 1800)
 
   let iconStyle = {
     fontSize: isScrollNearTarget ? '30px' : '50px',
@@ -127,7 +87,7 @@ export const Home = () => {
     setMessage('');
     let isGuest;
     try {
-      isGuest = await axios.get(`http://localhost:3000/guest/${id}`, {
+      isGuest = await axios.get(`${serverConfig.serverUrl}/guest/${id}`, {
 
       });
 
@@ -137,29 +97,36 @@ export const Home = () => {
       console.log(error);
     }
     if (isGuest?.data.guest !== null && id) {
-      try {
-        const response = await axios.post(`http://localhost:3000/task`, {
-          job: category,
-          location: location,
-          description: message,
-          isDone: false,
-          isMove:false,
-          moveBy:"",
-        });
+      const today = moment();// יצירת אובייקט Moment עם התאריך והשעה הנוכחיים
+      const targetDate = moment(isGuest?.data.guest.ReleaseDate); // התאריך שאתה רוצה להשוות אותו
+      const today2 = today.format("YYYY-MM-DD HH:mm:ss");
+      if (targetDate.isAfter(today)) {
+        try {
+          const response = await axios.post(`${serverConfig.serverUrl}/task`, {
+            job: category,
+            location: location,
+            description: message,
+            isDone: false,
+            isMove: false,
+            moveBy: "",
+            date: today2,
+          });
 
-        console.log(response.data);
-        setIsDialog1Open(true);
-        // alert("תודה! קיבלנו את פניתך ונטפל בהקדם");
+          setIsDialog1Open(true);
 
-      } catch (error) {
-        console.log(error);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      else {
+        setIsDialog2Open(true)
+
       }
     }
     else
       setIsDialog2Open(true)
-    // alert("אינך רשום במערכת")
   };
-  // 
+
   const images = [
     { src: img1, text: "הצוות המסור שלנו תמיד זמין לספק שירות בזמן אמת, להבטיח שהייה חלקה ומהנה עבור האורחים שלנו" },
     { src: img2, text: "חוויה קולינרית יחודית, מאת טובי השפים" },
@@ -219,12 +186,7 @@ export const Home = () => {
 
   };
 
-  // const theme = createTheme({
-  //   typography: {
-  //     fontFamily: 'Rubik, sans-serif',
-  //   },
-  // });
-
+ 
 
   return (<>
     <Dialog open={isDialog1Open} onClose={() => setIsDialog1Open(false)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -245,7 +207,7 @@ export const Home = () => {
     <Dialog open={isDialog2Open} onClose={() => setIsDialog2Open(false)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <DialogContent style={{ textAlign: 'center' }}>
         <DialogContentText>
-          אינך רשום במערכת כאורח שלנו
+          אינך רשום במערכת כאורח שלנו כרגע
         </DialogContentText>
       </DialogContent>
       <DialogActions>

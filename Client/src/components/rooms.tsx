@@ -2,13 +2,16 @@
 import "./init"
 import { Cell } from './cell';
 import axios from 'axios';
-import { InputLabel, Select, MenuItem, SelectChangeEvent, FormControl, Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid } from '@mui/material';
+import { InputLabel, Select, MenuItem, SelectChangeEvent, FormControl, Button, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, IconButton } from '@mui/material';
 import { ChangeEvent, Key, SetStateAction, useEffect, useState } from 'react';
 import ShowRoom from './showRoom';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import ClearIcon from '@mui/icons-material/Clear';
+import serverConfig from '../config';
 
-export const Rooms= () => {
+export const Rooms = () => {
     interface Room {
         _id: string;
         name: string;
@@ -28,98 +31,6 @@ export const Rooms= () => {
     const [isDialog2Open, setIsDialog2Open] = useState(false);
     const [isTabFocused, setIsTabFocused] = useState(true);
 
-    //לא לימחוק
-    // useEffect(() => {
-    //     let timeout: any;
-
-    //     const handleVisibilityChange = () => {
-    //         console.log("roomSelect1", roomSelect)
-
-    //         if (document.hidden) {
-    //             setIsTabFocused(false);
-    //             timeout = setTimeout(async () => {
-    //                 // המשתמש עזב את המסך ועברו 15 שניות
-    //                 console.log("המשתמש עזב את המסך ועברו 15 שניות");
-    //                 console.log("roomSelect2", roomSelect)
-
-
-    //                 try {
-    //                     console.log("is")
-    //                     for (let index = 0; index < roomSelect.length; index++) {
-    //                         for (const r of roomSelect[index]) {
-    //                             console.log(r)
-    //                             const response = await axios.get(`http://localhost:3000/room/${r._id}`);
-    //                             let data = response.data.room;
-
-    //                             console.log("🚀 ~ file: guast.form.tsx:116 ~ handleSubmit ~ data:", data)
-
-    //                             for (let j = 0; j < data.length; j++) {
-    //                                 for (let i = 0; i < data[j].temporaryEntryDate.length; i++) {
-    //                                     console.log(data[j].temporaryEntryDate[i], "", startDateSelect)
-
-    //                                     if (moment(data[j].temporaryEntryDate[i]).isSame(moment(startDateSelect)) &&
-    //                                         moment(data[j].temporaryReleaseDate[i]).isSame(moment(endDateSelect))) {
-    //                                         console.log("--", data[j]._id);
-    //                                         console.log(startDateSelect)
-    //                                         // let updatedTemporaryEntryDate = data[j].temporaryEntryDate.filter((date: any) =>moment(date)  !== startDateSelect);
-    //                                         // let updatedTemporaryEntryDate = data[j].temporaryEntryDate.filter((date: any) => !moment(date).isSame(moment(startDateSelect)));
-    //                                         let updatedTemporaryEntryDate = data[j].temporaryEntryDate.filter((date: any) => {
-    //                                             const momentDate = moment(date).format("YYYY-MM-DD");
-    //                                             const momentStartDate = moment(startDateSelect).format("YYYY-MM-DD");
-    //                                             return momentDate !== momentStartDate;
-    //                                         });
-    //                                         // let updatedTemporaryReleaseDate = data[j].temporaryReleaseDate.filter((date: any) => moment(date)  !== endDateSelect);
-
-    //                                         let updatedTemporaryReleaseDate = data[j].temporaryReleaseDate.filter((date: any) => {
-    //                                             const momentDate = moment(date).format("YYYY-MM-DD");
-    //                                             const momentEndtDate = moment(endDateSelect).format("YYYY-MM-DD");
-    //                                             return momentDate !== momentEndtDate;
-    //                                         });
-
-    //                                         console.log("updatedTemporaryEntryDate", updatedTemporaryEntryDate,)
-    //                                         try {
-    //                                             let updateRoomResponse = await axios.put(
-    //                                                 `http://localhost:3000/room/temporary/${data[j]._id}`,
-    //                                                 {
-    //                                                     _id: data[j]._id,
-    //                                                     type: data[j].type,
-    //                                                     EntryDate: data[j].EntryDate,
-    //                                                     ReleaseDate: data[j].ReleaseDate,
-    //                                                     temporaryEntryDate: updatedTemporaryEntryDate,
-    //                                                     temporaryReleaseDate: updatedTemporaryReleaseDate,
-    //                                                 }
-    //                                             );
-    //                                             console.log("updateRoomResponse😁", updateRoomResponse);
-    //                                         } catch (error) { }
-
-    //                                     }
-
-    //                                 }
-    //                             }
-
-
-    //                         }
-    //                     }
-
-    //                 }
-    //                 catch (error) {
-    //                     console.log(error);
-    //                 }
-    //             }, 15000); // 15 שניות
-    //             setShowNextForm(false);
-    //         } else {
-    //             setIsTabFocused(true);
-    //             clearTimeout(timeout);
-    //         }
-    //     };
-
-    //     document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    //     return () => {
-    //         document.removeEventListener('visibilitychange', handleVisibilityChange);
-    //     };
-    // }, [roomSelect]);
-    // 
 
     interface FormData {
         babiesNumber: string;
@@ -129,6 +40,82 @@ export const Rooms= () => {
 
     const [formsData, setFormsData] = useState<FormData[]>([{ babiesNumber: '0', childrenNumber: '0', adultsNumber: '0' }]);
 
+    // If the user has left the screen and 15 minutes have passed
+    // deleting the dates of the rooms selected for presentation
+    useEffect(() => {
+        let timeout: any;
+
+        const handleVisibilityChange = () => {
+            //if The user is not viewing the page 
+            if (document.hidden) {
+                setIsTabFocused(false);
+                timeout = setTimeout(async () => {
+                    // if 15 seconds have passed loop over the rooms and remove the dates
+                    try {
+                        for (let index = 0; index < roomSelect.length; index++) {
+                            for (const r of roomSelect[index]) {
+                                const response = await axios.get(`${serverConfig.serverUrl}/room/${r._id}`);
+                                let data = response.data.room;
+
+                                // loop over the dates and remove the dates 
+                                for (let j = 0; j < data.length; j++) {
+                                    for (let i = 0; i < data[j].temporaryEntryDate.length; i++) {
+                                        // Deleting the date that is equal to the date selected in the current process
+                                        if (moment(data[j].temporaryEntryDate[i]).isSame(moment(startDateSelect)) &&
+                                            moment(data[j].temporaryReleaseDate[i]).isSame(moment(endDateSelect))) {
+                                            // new arrays without the date selected in the current process
+                                            let updatedTemporaryEntryDate = data[j].temporaryEntryDate.filter((date: any) => {
+                                                const momentDate = moment(date).format("YYYY-MM-DD");
+                                                const momentStartDate = moment(startDateSelect).format("YYYY-MM-DD");
+                                                return momentDate !== momentStartDate;
+                                            });
+
+                                            let updatedTemporaryReleaseDate = data[j].temporaryReleaseDate.filter((date: any) => {
+                                                const momentDate = moment(date).format("YYYY-MM-DD");
+                                                const momentEndtDate = moment(endDateSelect).format("YYYY-MM-DD");
+                                                return momentDate !== momentEndtDate;
+                                            });
+                                            // Update the room 
+                                            try {
+                                                let updateRoomResponse = await axios.put(
+                                                    `${serverConfig.serverUrl}/room/temporary/${data[j]._id}`,
+                                                    {
+                                                        _id: data[j]._id,
+                                                        type: data[j].type,
+                                                        EntryDate: data[j].EntryDate,
+                                                        ReleaseDate: data[j].ReleaseDate,
+                                                        temporaryEntryDate: updatedTemporaryEntryDate,
+                                                        temporaryReleaseDate: updatedTemporaryReleaseDate,
+                                                    }
+                                                );
+                                            } catch (error) { }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (error) {
+                        console.log(error);
+                    }
+                    setShowNextForm(false);
+                }, 15 * 60 * 1000);  // 15 minutes 
+
+            } else {
+                // If the user comes back before the timeout, clear the timeout
+                setIsTabFocused(true);
+                clearTimeout(timeout);
+            }
+        };
+        // Listen for changes in document visibility
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        // Cleanup: remove the event listener when the component unmounts
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [roomSelect]);
+
+    // 
     const handleRoomSelect = (room: any) => {
         console.log("רגע לפני", room)
         console.log("ועוד אחד לפני", roomSelect)
@@ -161,6 +148,12 @@ export const Rooms= () => {
         setEndDateSelect(moment(endDate)?.format("YYYY-MM-DDTHH:mm:ss.SSSZ"));
         console.log(startDateSelect, "--", endDateSelect)
     };
+
+    const handleDeleteRoom = (index: any) => {
+
+        const updatedFormsData = formsData.filter((_, i) => i !== index);
+        setFormsData(updatedFormsData);
+    }
 
     const handleAddRoom = () => {
         let bedsNum = 0;
@@ -198,7 +191,7 @@ export const Rooms= () => {
 
                 try {
                     // server call to get the all information about the rooms
-                    const response = await axios.get(`http://localhost:3000/room_type`, {});
+                    const response = await axios.get(`${serverConfig.serverUrl}/room_type`, {});
                     // filter the rooms by the bed's num
                     const result = response.data.room_type.filter(
                         (item: { beds: number; }) => item.beds >= bedsNum
@@ -213,7 +206,7 @@ export const Rooms= () => {
                         // get all rooms from the type who filtered
                         if (!roomAvailability[item._id]) {
                             let promise = await axios.get(
-                                `http://localhost:3000/room/type/${item._id}`
+                                `${serverConfig.serverUrl}/room/type/${item._id}`
                             );
                             console.log("promise-try", promise);
                             let itemType: any[] = [];
@@ -226,22 +219,17 @@ export const Rooms= () => {
                                 // check temporary DATES
                                 for (let j = 0; j < item.temporaryEntryDate.length - 1; j++) {
                                     if (
-
                                         moment(item.temporaryReleaseDate[j]).isBefore(startDateSelect) &&
                                         moment(item.temporaryEntryDate[j + 1]).isAfter(endDateSelect)) {
-
                                         flag = true;
                                     }
-
                                 }
                                 let len = item.temporaryReleaseDate.length - 1;
                                 if (
                                     moment(item.temporaryReleaseDate[len]).isBefore(startDateSelect) ||
                                     moment(item.temporaryEntryDate[0]).isAfter(endDateSelect)
-
                                 )
                                     flag = true;
-
                                 if (flag) {
 
                                     flag = false;
@@ -276,7 +264,7 @@ export const Rooms= () => {
 
                                                 const temporaryUpdate = async () => {
                                                     let updateRoomResponse = await axios.put(
-                                                        `http://localhost:3000/room/AddTemporary/${item._id}`,
+                                                        `${serverConfig.serverUrl}/room/AddTemporary/${item._id}`,
                                                         {
                                                             _id: item._id,
                                                             type: item.type,
@@ -310,33 +298,19 @@ export const Rooms= () => {
 
                         }
                         if (isAvailable) {
-                            // rooms type 
+
                             availableRoom.push(item);
 
                         }
                     }
 
-                    console.log(roomsUpdates.length, roomsUpdates, "090")
-                    console.log("First object _id:", roomsUpdates.length);
-                    // console.log("Second object type:", roomsUpdates[1].type);
-                    for (let room of roomsUpdates) {
-                        console.log(roomsUpdates.length, roomsUpdates, "092")
-                        const roomId = room._id;
-                        console.log("🚀 ~ file: rooms2.tsx:329 ~ handleSearchRooms ~ roomId:", roomId)
 
-                    }
                     for (let i = 0; i < roomsUpdates.length; i++) {
 
-                        console.log(roomsUpdates[i])
                         allRoomUpdates.push(roomsUpdates)
                     }
-                    // allRoomUpdates = [...allRoomUpdates, ...[...roomsUpdates]]
 
-                    // allRoomUpdates = allRoomUpdates.concat(roomsUpdates);
-                    console.log("allRoomUpdates😴", allRoomUpdates)
-                    // allRoomUpdates.concat(roomsUpdates);
 
-                    // console.log("availableRoom", availableRoom);
                     const roomsResponses = await Promise.all(roomPromises);
 
                     // if is no available room- error massage
@@ -347,7 +321,6 @@ export const Rooms= () => {
                         break;
                     }
                     else {
-                        // updatedRooms.push(availableRoom);
                         updatedRooms = [...updatedRooms, availableRoom];
                     }
 
@@ -359,107 +332,15 @@ export const Rooms= () => {
         }
 
         if (isShow == true) {
-            console.log(updatedRooms, "==")
             setRooms(updatedRooms);
             setRoomSelect(allRoomUpdates);
             setShowNextForm(true);
         }
     };
 
-    // const handleSearchRooms = async () => {
-    //     try {
-    //         let countBedsNum = 0;
-    //         let updatedRooms: any[] = [];
-    //         let IsSuggestion: string[] = [];
-
-    //         for (let form of formsData) {
-    //             let bedsNum = parseInt(form.adultsNumber) + parseInt(form.childrenNumber);
-    //             countBedsNum += bedsNum;
-
-    //             if (bedsNum >= 4) {
-    //                 setIsDialog1Open(true);
-    //                 return;
-    //             } else {
-    //                 const response = await axios.get(`http://localhost:3000/room_type`, {});
-    //                 const result = response.data.room_type.filter((item: { beds: number }) => item.beds >= bedsNum);
-
-    //                 let availableRoom: Room[] = [];
-    //                 let roomPromises: Promise<any>[] = [];
-
-    //                 for (let item of result) {
-    //                     let isAvailable = false;
-
-    //                     if (!roomAvailability[item._id]) {
-    //                         const promise = axios.get(`http://localhost:3000/room/type/${item._id}`);
-
-    //                         const roomData = await promise;
-    //                         console.log("<<", roomData);
-
-    //                         for (let i = 0; i < item.EntryDate?.length - 1; i++) {
-    //                             if (
-    //                                 moment(item.ReleaseDate[i]).isBefore(startDateSelect) &&
-    //                                 moment(item.EntryDate[i + 1]).isAfter(endDateSelect)
-    //                             ) {
-    //                                 console.log("😍");
-
-    //                                 try {
-    //                                     console.log("😍");
-    //                                     await axios.put(`http://localhost:3000/room/temporary/${item._id}`, {
-    //                                         _id: item._id,
-    //                                         type: item.type,
-    //                                         EntryDate: item.EntryDate,
-    //                                         ReleaseDate: item.ReleaseDate,
-    //                                         temporaryEntryDate: [startDateSelect],
-    //                                         temporaryReleaseDate: [endDateSelect],
-    //                                     });
-    //                                 } catch (error) {
-    //                                     console.error(error);
-    //                                 }
-    //                             }
-    //                         }
-    //                         let len = item.ReleaseDate?.length - 1
-    //                         //                                 if (moment(item.ReleaseDate[len]).isBefore(startDateSelect) ||
-    //                         //                                     moment(item.EntryDate[0]).isAfter(endDateSelect))
-    //                         //                                     flag = true;
-    //                         if (moment(item.ReleaseDate[len]).isBefore(startDateSelect) ||
-    //                             moment(item.EntryDate[0]).isAfter(endDateSelect)) {
-    //                             roomAvailability[item._id] = true;
-    //                             isAvailable = true;
-    //                             IsSuggestion.push(item._id);
-    //                             roomPromises.push(promise);
-    //                         }
-    //                     }
-
-    //                     if (isAvailable) {
-    //                         availableRoom.push(item);
-    //                     }
-    //                 }
-
-    //                 console.log("availableRoom", availableRoom);
-    //                 const roomsResponses = await Promise.allSettled(roomPromises);
-
-    //                 if (availableRoom.length === 0) {
-    //                     setIsDialog2Open(true);
-    //                 } else {
-    //                     updatedRooms = [...updatedRooms, availableRoom];
-    //                 }
-    //             }
-    //         }
-
-    //         if (updatedRooms.length > 0) {
-    //             setRooms(updatedRooms);
-    //             setShowNextForm(true);
-    //         }
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // };
-
-    // 
 
     const renderRoomForm = (index: number) => {
-        // console.log(index)
-        // console.log("formsData", formsData)
+
         const form = formsData[index];
         if (!form) {
             return null;
@@ -471,13 +352,14 @@ export const Rooms= () => {
             <div key={index}>
 
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
+
                     <FormControl style={{ width: '150px', margin: '10px' }}>
+
                         <InputLabel id={`demo-simple-select-label-${index}`}>תינוקות (0-2)</InputLabel>
                         <Select
                             value={formsData[index].babiesNumber}
                             onChange={(e) => handleBabiesChange(e, index)}
-                            //   value={formsData.babiesNumber} onChange={(e) => handleBabiesChange2(e, index)}
-                            // value={babiesNumber} onChange={handleBabiesChange}
+
                             labelId={`demo-simple-select-label-${index}`}
                             id={`demo-simple-select-${index}`} label="תינוקות (0-2)">
                             <MenuItem value={0}>0</MenuItem>
@@ -493,7 +375,6 @@ export const Rooms= () => {
                         <Select
                             value={formsData[index].childrenNumber}
                             onChange={(e) => handleChildrenChange(e, index)}
-                            //  value={childrenNumber} onChange={handleChildrenChange}
                             labelId={`demo-simple-select-label-children-${index}`}
                             id={`demo-simple-select-children-${index}`} label="ילדים (2-12)">
                             <MenuItem value={0}>0</MenuItem>
@@ -519,13 +400,16 @@ export const Rooms= () => {
                             <MenuItem value={4}>4</MenuItem>
                         </Select>
                     </FormControl>
-                    <div style={{ marginTop: '30px' }}>
+                    <div style={{ marginTop: '20px' }}>
 
                         # חדר {numOfRooms}
+
+                        <IconButton color="info" onClick={() => handleDeleteRoom(index)} aria-label="add an alarm">
+                            <ClearIcon sx={{ color: "#131054" }} />
+                        </IconButton>
                     </div>
                 </div>
 
-                {/* {showNextForm ? <ShowRoom rooms={rooms} onRoomSelect={handleRoomSelect} /> : null} */}
 
             </div>
 
@@ -536,7 +420,6 @@ export const Rooms= () => {
     // 
     return (
         <>
-            {/* כאן נציין את ה-DIALOG וכיצד להציגו */}
             <Dialog open={isDialog1Open} onClose={() => setIsDialog1Open(false)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <DialogContent style={{ textAlign: 'center' }}>
                     <DialogContentText>
@@ -558,7 +441,9 @@ export const Rooms= () => {
             <Dialog open={isDialog2Open} onClose={() => setIsDialog2Open(false)}>
                 {/* <DialogTitle>הודעת שגיאה</DialogTitle> */}
                 <DialogContent>
-                    <DialogContentText>  אין חדרים פנויים בתאריך הדרוש</DialogContentText>
+                    <DialogContentText>  ,אין חדרים פנויים בתאריך הדרוש </DialogContentText>
+
+
                 </DialogContent>
                 <DialogActions>
                     <Grid container justifyContent="center">
@@ -576,10 +461,7 @@ export const Rooms= () => {
             {isDateSelected && (
 
                 <>
-                    {/* <Box display="flex" justifyContent="center"  margin={2} > */}
-
-                    {/* <Box mx={2}></Box>  */}
-
+                
                     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '9px' }}>
                         <Button type="submit" variant="contained" style={{ backgroundColor: '#131054' }} onClick={handleAddRoom} >
                             הוסף חדר

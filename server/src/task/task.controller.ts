@@ -28,7 +28,26 @@ export class TaskController {
         })
     }
 
+    @Get('/byTime/:num')
+    @Roles(Role.Admin)
+    async findByTime(@Res() response, @Param('num') num) {
+      console.log("get-time")
+        const task = await this.taskService.readByTime(num);
+        return response.status(HttpStatus.OK).json({
+            task
+        })
+    }
   
+    @Get('/allByTime')
+    @Roles(Role.Admin)
+    async findAllByTime(@Res() response) {
+      console.log("get-time")
+        const task = await this.taskService.readAllByTime();
+        return response.status(HttpStatus.OK).json({
+            task
+        })
+    } 
+
     @Get('/isMove')
     @Roles(Role.Admin)
     async ifMove(@Res() response) {

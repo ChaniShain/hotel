@@ -30,6 +30,9 @@ export class Task {
     @Prop()
     moveBy: string;
 
+    @Prop()
+    date: Date;
+
 
 }
 

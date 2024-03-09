@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Room } from './schemas/room.schema';
 import { InjectModel } from '@nestjs/mongoose';
+import { Cron } from '@nestjs/schedule';
+import { every } from 'rxjs';
 
 @Injectable()
 export class RoomService {
@@ -27,7 +29,7 @@ export class RoomService {
         return await this.roomModel.find({ type }).exec();
     }
 
-
+    // Update room with push the dates sorts
     async update(id, room: Room): Promise<Room> {
         const existRoom = await this.roomModel.findById(id);
         const existingEntryDate = existRoom.EntryDate;
@@ -47,7 +49,7 @@ export class RoomService {
 
     }
     async updateAddTemporary(id, room: Room): Promise<Room> {
-       
+
         const existRoom = await this.roomModel.findById(id);
         const existingEntryDate = existRoom.temporaryEntryDate;
         const existingReleaseDate = existRoom.temporaryReleaseDate;
@@ -81,5 +83,15 @@ export class RoomService {
 
     async delete(id): Promise<any> {
         return await this.roomModel.findByIdAndDelete(id);
+    }
+
+    //    every night 4 oclock erase the temporary arrays
+    @Cron('0 4 * * * ')
+    async handleCron() {
+        try {
+            await this.roomModel.updateMany({}, { $set: { temporaryEntryDate: [], temporaryReleaseDate: [] } });
+        } catch (error) {
+            console.error('Error deleting temporary dates:', error);
+        }
     }
 }
