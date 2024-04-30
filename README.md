@@ -1,5 +1,5 @@
 # hotel
--- in development processes -- 
+
 
 # Hotel Management System
 
